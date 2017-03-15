@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../favicon.ico">
+
+    <title>Красная Книга Алтая</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="./assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="blog.css" rel="stylesheet">
+    <link href="carousel.css" rel="stylesheet">
+	
+  </head>
+
+  <body>
+   <div class="navbar-wrapper">
+      <div class="container">
+
+        <nav class="navbar navbar-inverse navbar-static-top">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="#">Красная книга</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li class="active"><a href="index.html">Главная</a></li>
+                <li class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle">
+						Виды растений
+						<b class="caret">
+						</b>
+					</a>
+					<ul class="dropdown-menu">
+						<li><a href="#">Плауновидные</a></li>
+						<li><a href="#">Папоротникообразные</a></li>
+						<li><a href="show_flowering.html">Цветковые</a></li>
+						<li><a href="#">Моховидные</a></li>
+						<li><a href="#">Лишайники</a></li>
+						<li><a href="#">Грибы</a></li>
+						<li class="divider"></li></li>
+						<li><a href="#">Ресурсные</a></li>
+					</ul>
+				</li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+
+      </div>
+    </div>
+
+
+
+    <div class="container">
+
+		<div class="blog-header">
+			<h1 class="blog-title">Цветковые</h1>
+			<p class="lead blog-description">Отдел высших растений, отличительной особенностью которых является наличие цветка в качестве органа полового размножения и замкнутого вместилища у семяпочки.</p>
+		</div>
+
+		<div class="row">
+
+			<div class="col-sm-12 blog-main">
+
+			  <div class="blog-post">
+				<h2 class="blog-post-title">РЯБЧИК МУТОВЧАТЫЙ</h2> 
+				<p class="blog-post-meta">FRITILLARIA VERTICILLATA WILLD</p>
+				<p>Многолетнее луковичное растение 15–50 см выс. Луковица округло-овальная, до 2 см в диаметре. 
+				Стебель в нижней части шероховатый от мелких бугорков, в верхней части гладкий, густо облиственный.
+				Нижние листья ланцетные, в мутовках по 4, верхние – на кончике завитые наподобие усика. 
+				Цветки зеленовато-беловатые, иногда с внутренней стороны с бледно-фиолетовыми крапинками, в числе 1–5 (7), колокольчатые, поникающие. 
+				Коробочка крылатая, шeстигранная.</p>
+				<button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">
+				  Редактировать
+				</button>
+				<button type="button" class="btn btn-default">Удалить</button>
+			  </div><!-- /.blog-post -->
+
+			  <div class="blog-post">
+				<h2 class="blog-post-title">ДРУГОЕ РАСТЕНИЕ</h2>
+				<p class="blog-post-meta">DRUGOE RASTENIE</p>
+				<p>Информация о другом растении.</p>
+				<button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">
+				  Редактировать
+				</button>
+				<button type="button" class="btn btn-default">Удалить</button>
+			  </div><!-- /.blog-post -->
+
+			  <nav>
+				<ul class="pager">
+				  <li><a href="#">Previous</a></li>
+				  <li><a href="#">Next</a></li>
+				</ul>
+			  </nav>
+
+			</div><!-- /.blog-main -->
+		</div>
+		<!-- FOOTER -->
+      <footer>
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>&copy; 2016 Volkov E.A. <br>e-mail: egoralvolk@gmail.com</p>
+      </footer>
+	</div><!--/.container-->
+
+
+	<!-- Modal -->
+	<div class="modal fade" data-modal-color="lightgreen" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	  <div class="modal-dialog" role="document">
+		<div class="modal-content">
+		  <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title">Редактирование информации о растении</h4>
+		  </div>
+		  <div class="modal-body">
+			<div class="row row-offcanvas row-offcanvas-right">
+				<div class="col-xs-12 col-sm-12">
+					<div class="row">
+						<form>
+							<div class="form-group col-sm-6">
+								<label for="inputdefault">Название</label>
+								<input class="form-control" id="inputdefault" type="text">
+							</div>
+							<div class="form-group col-sm-6">
+								<label for="inputdefault">Латинское название</label>
+								<input class="form-control" id="inputdefault" type="text">
+							</div>
+						</form>
+					</div>
+					<div class="row">
+						<form>
+							<div class="form-group col-sm-6">
+								<label for="information">Описание</label>
+								<textarea class="form-control" id="information" rows="8"></textarea>
+								<style type="text/css">
+									#information { resize: none; }
+								</style>
+							</div>
+							
+							<div class="form-group col-sm-6">
+								<label for="measures">Меры охраны</label>
+								<textarea class="form-control" id="information" rows="8"></textarea>
+								<style type="text/css">
+									#measures { resize: none; }
+								</style>
+							</div>
+						</form>
+					</div>
+					<div class="row">
+						<form>
+							<div class="form-group col-sm-6">
+								<label for="status">Статус растения</label>
+								<select class="form-control col-sm-6" id="status">
+									<option>1</option>
+									<option>2</option>
+									<option>3</option>
+									<option>4</option>
+									<option>5</option>
+								</select>
+							</div>
+							<div class="form-group col-sm-6">
+								<label for="multiSelect">Охраняется в</label>
+								<select class="form-control"  multiple="multiple" id="multiSelect">
+									<option>Заповедник</option>
+									<option>Заказник</option>
+								</select>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		  </div>
+		  <div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+			<button type="button" class="btn btn-primary">Сохранить</button>
+		  </div>
+		</div>
+	  </div>
+	</div>
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="./assets/js/ie-emulation-modes-warning.js"></script>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="./assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="./js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="./assets/js/ie10-viewport-bug-workaround.js"></script>
+    <script src="offcanvas.js"></script>
+  </body>
+</html>

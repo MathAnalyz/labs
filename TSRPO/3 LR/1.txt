@@ -1,0 +1,12 @@
+db.getCollection('plays').aggregate([
+   { $project: { "headers.X-From": 1, 
+        year : {$arrayElemAt: [{$split : ["$headers.Date", " "]},3]}, 
+        "headers.Subject": 1}}, 
+   { $match: { "headers.X-From": "Laurie Ellis"}},
+   { $match: { "year": "2000"}},
+   { $group: { _id: "$headers.Subject", count: { $sum: 1 }}}])
+
+db.getCollection('plays').aggregate([
+   { $project: { eq: {$eq: ["$headers.X-From", "$headers.X-To"]}}},
+   { $match: { eq : true}},
+   { $group: { _id: null, count: { $sum: 1}}}])

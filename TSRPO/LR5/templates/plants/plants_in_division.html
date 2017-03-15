@@ -1,0 +1,47 @@
+{% extends "plants/base.html" %}
+
+{% load static %}
+
+{% block javascript %}
+  <script src="{% static 'plants.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    {% include 'plants/partial_create_plant_modal.html' %}
+
+    <div class="modal fade" id="modal-plant">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="blog-header">
+            <h1 class="blog-title">{{dvs.name}}
+                <button type="button"
+                        class="btn btn-default"
+                        data-toggle="modal"
+                        data-target="#create_modal">
+                    Добавить
+                </button>
+            </h1>
+            <p class="lead blog-description">{{dvs.annotation}}</p>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 blog-main" id="plants-blog">
+                {% include 'plants/partial_plants_blog.html' %}
+            </div>
+        </div>
+        <div class="row">
+            <button id="load"
+                    type="button"
+                    class="btn btn-default"
+                    data-url="{% url 'ajax_partial_load' dvs.id %}">
+                Далее >>
+            </button>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,13 @@
+{
+  "name": "hw_nodejs",
+  "version": "0.0.1",
+  "description": "Node JS example",
+  "dependencies": {
+    "express": "4.15.0",
+    "mongoose": "4.8.5",
+    "twig": "1.10.4",
+    "body-parser": "1.17.0"
+  },
+  "author": "Volkov Egor <egoralvolk@gmail.com>",
+  "license": "MIT"
+}

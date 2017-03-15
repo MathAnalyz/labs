@@ -1,0 +1,32 @@
+
+<div class="container bootstrap snippet">
+    <div class="btn-demo" id="btn-color-targets">
+        <a href="#modalColor" data-target-color="blue" data-toggle="modal" class="btn btn-default ">Blue</a>
+        <a href="#modalColor" data-target-color="lightblue" data-toggle="modal" class="btn btn-default ">Light Blue</a>
+        <a href="#modalColor" data-target-color="cyan" data-toggle="modal" class="btn btn-default ">Cyan</a>
+        <a href="#modalColor" data-target-color="green" data-toggle="modal" class="btn btn-default ">Green</a>
+        <a href="#modalColor" data-target-color="lightgreen" data-toggle="modal" class="btn btn-default ">Light Green</a>
+        <a href="#modalColor" data-target-color="red" data-toggle="modal" class="btn btn-default ">Red</a>
+        <a href="#modalColor" data-target-color="amber" data-toggle="modal" class="btn btn-default ">Amber</a>
+        <a href="#modalColor" data-target-color="orange" data-toggle="modal" class="btn btn-default ">Orange</a>
+        <a href="#modalColor" data-target-color="teal" data-toggle="modal" class="btn btn-default ">Teal</a>
+        <a href="#modalColor" data-target-color="bluegray" data-toggle="modal" class="btn btn-default ">Blue Gray</a>
+    </div>
+</div>
+
+<div class="modal fade" data-modal-color="" id="modalColor" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Modal title</h4>
+            </div>
+            <div class="modal-body">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sodales orci ante, sed ornare eros vestibulum ut. Ut accumsan vitae eros sit amet tristique. Nullam scelerisque nunc enim, non dignissim nibh faucibus ullamcorper. Fusce pulvinar libero vel ligula iaculis ullamcorper. Integer dapibus, mi ac tempor varius, purus nibh mattis erat, vitae porta nunc nisi non tellus. Vivamus mollis ante non massa egestas fringilla. Vestibulum egestas consectetur nunc at ultricies. Morbi quis consectetur nunc.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link">Save changes</button>
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

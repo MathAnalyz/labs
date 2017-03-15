@@ -1,0 +1,31 @@
+{% for plant in plants %}
+    <div class="blog-post">
+        <h2 class="blog-post-title">
+            {{plant.rus_name}}
+            <a href="{% url 'plant_edit' plant.id %}" type="submit" class="btn btn-default">Редактировать</a>
+            <button type="button" class="btn btn-danger btn-sm js-delete-plant"
+                    data-url="{% url 'ajax_plant_delete' plant.id %}">
+                <span class="glyphicon glyphicon-trash"></span>
+                Удалить
+            </button>
+            <a href="{% url 'plant_delete' dvs.id plant.id %}" type="submit" class="btn btn-danger">Удалить</a>
+        </h2>
+        <p class="blog-post-meta">{{plant.lat_name}}
+        </p>
+        <h3>Описание</h3>
+        <p>{{plant.info}}</p>
+        <h3>Меры охраны</h3>
+        <p>{{plant.sec_measures}}</p>
+        <h3>Статус -
+        {% for st in statuses %}
+            {% if plant.status == st %}
+                {{ st.name}}</h3>
+                <p>{{st.info}}</p>
+            {% endif %}
+        {% endfor %}
+        <h3>Места охраны</h3>
+        {% for rsv in plant.reservations.all %}
+            <p> {{ rsv.name }} </p>
+        {% endfor %}
+    </div>
+{% endfor %}

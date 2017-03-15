@@ -1,0 +1,95 @@
+{% extends "base.twig" %}
+
+{% block content %}
+    <!-- Carousel
+    ================================================== -->
+    <div id="myCarousel" class="carousel slide hidden-xs" data-ride="carousel">
+      <!-- Indicators -->
+      <ol class="carousel-indicators">
+        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+        <li data-target="#myCarousel" data-slide-to="1"></li>
+        <li data-target="#myCarousel" data-slide-to="2"></li>
+      </ol>
+      <div class="carousel-inner" role="listbox">
+        <div class="item active">
+          <img class="first-slide" src="/img/3.jpg" alt="First slide">
+          <div class="container">
+            <div class="carousel-caption">
+              <h1>Добро пожаловать!</h1>
+              <p>Здесь вы можете узнать, какие растения Алтайского края являются очень редкими или находятся на грани исчезновения</p>
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <img class="second-slide" src="/img/2.jpg" alt="Second slide">
+          <div class="container">
+            <div class="carousel-caption">
+              <h1>Вднохновлён Красной книгой Алтайского края!</h1>
+              <p>Вся информация, размещённая на сайте, соответствует последнему изданию Красной книги</p>
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <img class="third-slide" src="/img/1.jpg" alt="Third slide">
+          <div class="container">
+            <div class="carousel-caption">
+              <h1>Мир прекрасен!</h1>
+              <p>Так давайте сделаем так, чтобы ни один вид больше не исчез</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+      </a>
+    </div><!-- /.carousel -->
+
+    <div class="container marketing">
+
+      <!-- Three columns of text below the carousel -->
+      <div class="row">
+        <div class="col-lg-4">
+          <img class="img-circle" src="/img/plaun.jpg" alt="Generic placeholder image" width="140" height="140">
+          <h2>Плауновидные</h2>
+          <p>Отдел высших споровых растений; древнейшие сохранившиеся до наших дней сосудистые растениями. Произошли от риниофитовидных в середине девонского периода.</p>
+          <p><a class="btn btn-default" href="#" role="button">Подробнее &raquo;</a></p>
+        </div><!-- /.col-lg-4 -->
+        <div class="col-lg-4">
+          <img class="img-circle" src="/img/paporotnik.jpg" alt="Generic placeholder image" width="140" height="140">
+          <h2>Папоротникообразные</h2>
+          <p>Группа высших споровых растений. К ним относятся папоротники, хвощи, плауны, которые растут преимущественно в увлажненных тенистых местах.</p>
+          <p><a class="btn btn-default" href="#" role="button">Подробнее &raquo;</a></p>
+        </div><!-- /.col-lg-4 -->
+        <div class="col-lg-4">
+          <img class="img-circle" src="/img/cvetkovie.jpg" alt="Generic placeholder image" width="140" height="140">
+          <h2>Цветковые</h2>
+          <p>Отдел высших растений, отличительной особенностью которых является наличие цветка в качестве органа полового размножения и замкнутого вместилища у семяпочки.</p>
+          <p><a class="btn btn-default" href="show_flowering.html" role="button">Подробнее &raquo;</a></p>
+        </div><!-- /.col-lg-4 -->
+		<div class="col-lg-4">
+          <img class="img-circle" src="/img/moh.jpg" alt="Generic placeholder image" width="140" height="140">
+          <h2>Моховидные</h2>
+          <p>Donec sed odio dui. Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna.</p>
+          <p><a class="btn btn-default" href="#" role="button">Подробнее &raquo;</a></p>
+        </div><!-- /.col-lg-4 -->
+        <div class="col-lg-4">
+          <img class="img-circle" src="/img/lishai.jpg" alt="Generic placeholder image" width="140" height="140">
+          <h2>Лишайники</h2>
+          <p>Симбиотические ассоциации грибов (микобионт) и микроскопических зелёных водорослей и/или цианобактерий; микобионт образует слоевище, внутри которого располагаются клетки фотобионта.</p>
+          <p><a class="btn btn-default" href="#" role="button">Подробнее &raquo;</a></p>
+        </div><!-- /.col-lg-4 -->
+        <div class="col-lg-4">
+          <img class="img-circle" src="/img/gribi.jpg" alt="Generic placeholder image" width="140" height="140">
+          <h2>Грибы</h2>
+          <p>Царство живой природы, объединяющее эукариотические организмы, сочетающие в себе некоторые признаки как растений, так и животных. Их изучает наука микология, которая считается разделом ботаники. </p>
+          <p><a class="btn btn-default" href="#" role="button">Подробнее &raquo;</a></p>
+        </div><!-- /.col-lg-4 -->
+      </div><!-- /.row -->
+	  
+	</div>
+{% endblock %}
