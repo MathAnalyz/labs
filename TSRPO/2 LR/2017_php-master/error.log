@@ -1,1 +1,0 @@
-[Fri Mar 03 15:54:04.868196 2017] [php7:notice] [pid 17900:tid 1876] [client 127.0.0.1:50328] PHP Notice:  Undefined index: name in D:\\Labs 8\\TSRPO\\2 LR\\2017_php-master\\web\\index.php on line 16
