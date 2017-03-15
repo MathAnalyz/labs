@@ -30,8 +30,8 @@ class Plant(models.Model):
     lat_name = models.CharField(max_length=500)
     info = models.CharField(max_length=3000)
     sec_measures = models.CharField(max_length=2000)
-    status = models.ForeignKey(Status, on_delete=models.CASCADE)
-    division = models.ForeignKey(Division, on_delete=models.CASCADE)
+    status = models.ForeignKey(Status, on_delete=models.PROTECT)
+    division = models.ForeignKey(Division, on_delete=models.PROTECT)
     reservations = models.ManyToManyField(Reservation)
 
     def __str__(self):
