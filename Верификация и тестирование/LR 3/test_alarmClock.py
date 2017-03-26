@@ -62,6 +62,15 @@ class TestAlarmClock(TestCase):
         self.assertFalse(alarm_clock.set_alarm(12, 'd', 'dfdsf'))
         self.assertFalse(alarm_clock.set_alarm(True, 123, 23.1))
         self.assertTrue(alarm_clock.set_alarm('melody.txt', 23, 23))
+        # Проверка на переустановку уже существующего будильника
+        self.assertFalse(alarm_clock.set_alarm('melody.txt', 23, 23))
+        self.assertTrue(alarm_clock.set_alarm('melody.txt', 23, 23, reset=True))
+
+    def test_run_alarm(self):
+        alarm_clock = AlarmClock()
+        alarm_clock.set_alarm('melody.txt', 23, 22)
+        alarm_clock.run_alarm()
+
 
 
 

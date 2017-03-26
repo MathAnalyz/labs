@@ -1,4 +1,6 @@
 import os
+import datetime
+import time
 
 
 class Time:
@@ -46,17 +48,52 @@ class Melody:
             return os.path.isfile(self._path_to_melody)
         return os.path.isfile(self.__default_path_to_melody)
 
+    def get_name_melody(self):
+        return self._path_to_melody
+
 
 class AlarmClock:
     def __init__(self):
         self.alarms = dict()
 
-    def set_alarm(self, name_melody, hour, minutes):
-        time = Time()
+    def set_alarm(self, name_melody, hour, minutes, reset=False):
+        time_c = Time()
         melody = Melody()
-        result = time.set_hour(hour) \
-                 and time.set_minutes(minutes) \
+        result = time_c.set_hour(hour) \
+                 and time_c.set_minutes(minutes) \
                  and melody.set_melody(name_melody)
+        if self.is_exist(time_c):
+            print('На данное время уже установлен будильник.')
+            if not reset:
+                print('Он не был переустановлен.')
+                return False
         if result:
-            self.alarms[time] = melody
+            self.alarms[time_c.get_time()] = melody
+            if reset:
+                print('Он был переустановлен.')
         return result
+
+    def is_exist(self, time):
+        if self.alarms.get(time.get_time()) is None:
+            return False
+        return True
+
+    def play_melody(self, time):
+        melody = self.alarms.get(time.get_time())
+        print('Звучит аудиозапись - ' + melody.get_name_melody() +
+              '. Время - ' + str(time.get_time()[0]) + ':' + str(time.get_time()[1]) + '.')
+
+    def run_alarm(self):
+        time_now = datetime.datetime.now()
+        shift = 60 - time_now.second
+        time.sleep(shift - 1)
+        while True:
+            time_now = datetime.datetime.now()
+            time_c = Time()
+            time_c.set_hour(time_now.hour)
+            time_c.set_minutes(time_now.minute)
+            if self.is_exist(time_c):
+                self.play_melody(time_c)
+                break
+            shift = 60 - time_now.second
+            time.sleep(shift - 1)
