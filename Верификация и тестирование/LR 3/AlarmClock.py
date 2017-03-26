@@ -1,5 +1,6 @@
 import os
 
+
 class Time:
     def __init__(self):
         self.hour = 0
@@ -49,7 +50,9 @@ class AlarmClock:
     def set_alarm(self, name_melody, hour, minutes):
         time = Time()
         melody = Melody()
-        if (time.set_hour(hour) and time.set_minutes(minutes)) and melody.set_melody(name_melody):
+        result = time.set_hour(hour) \
+                 and time.set_minutes(minutes) \
+                 and melody.set_melody(name_melody)
+        if result:
             self.alarms[time] = melody
-            return True
-        return False
+        return result

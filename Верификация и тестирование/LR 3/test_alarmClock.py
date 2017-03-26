@@ -58,9 +58,10 @@ class TestMelody(TestCase):
 class TestAlarmClock(TestCase):
     def test_set_alarm(self):
         alarm_clock = AlarmClock()
-        self.assertTrue(alarm_clock.set_alarm('melody.mp3', 23, 23))
+        self.assertFalse(alarm_clock.set_alarm('melody.mp3', 23, 23))
         self.assertFalse(alarm_clock.set_alarm(12, 'd', 'dfdsf'))
         self.assertFalse(alarm_clock.set_alarm(True, 123, 23.1))
+        self.assertTrue(alarm_clock.set_alarm('melody.txt', 23, 23))
 
 
 
