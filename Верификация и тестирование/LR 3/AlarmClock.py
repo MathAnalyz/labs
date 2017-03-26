@@ -4,10 +4,12 @@ class Time:
         self.minutes = 0
 
     def set_hour(self, hour):
-        pass
+        self.hour = hour
+        return True
 
     def set_minutes(self, minutes):
-        pass
+        self.minutes = minutes
+        return True
 
 
 class Melody:
@@ -16,7 +18,8 @@ class Melody:
         self.default_melody = ""
 
     def set_melody(self, melody):
-        pass
+        self.melody = melody
+        return True
 
 
 class AlarmClock:
@@ -24,4 +27,10 @@ class AlarmClock:
         self.alarms = dict()
 
     def set_alarm(self, melody, hour, minutes):
-        pass
+        time = Time()
+        melody = Melody()
+        if (time.set_hour(hour)
+            and time.set_minutes(minutes)
+            and melody.set_melody(melody)):
+            self.alarms[time] = melody
+            return True
