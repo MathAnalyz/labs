@@ -35,7 +35,11 @@ class Melody:
         if not isinstance(path, str):
             return False
         self._path_to_melody = path
-        return True
+        if self.is_exist():
+            return True
+        else:
+            self._path_to_melody = ''
+        return False
 
     def is_exist(self, default=False):
         if not default:

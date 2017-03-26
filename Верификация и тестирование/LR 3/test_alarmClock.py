@@ -37,7 +37,7 @@ class TestTime(TestCase):
 class TestMelody(TestCase):
     def test_set_melody(self):
         melody = Melody()
-        self.assertTrue(melody.set_melody('melody.mp3'))
+        self.assertTrue(melody.set_melody('melody.txt'))
         self.assertFalse(melody.set_melody(123))
         self.assertFalse(melody.set_melody(3.43))
         self.assertFalse(melody.set_melody(True))
