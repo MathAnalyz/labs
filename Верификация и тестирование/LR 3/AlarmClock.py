@@ -1,3 +1,5 @@
+import os
+
 class Time:
     def __init__(self):
         self.hour = 0
@@ -25,14 +27,19 @@ class Time:
 
 class Melody:
     def __init__(self):
-        self.melody = ''
-        self.default_melody = ''
+        self._path_to_melody = ''
+        self.__default_path_to_melody = 'melody.txt'
 
-    def set_melody(self, melody):
-        if not isinstance(melody, str):
+    def set_melody(self, path):
+        if not isinstance(path, str):
             return False
-        self.melody = melody
+        self._path_to_melody = path
         return True
+
+    def is_exist(self, default=False):
+        if not default:
+            return os.path.isfile(self._path_to_melody)
+        return os.path.isfile(self.__default_path_to_melody)
 
 
 class AlarmClock:

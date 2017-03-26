@@ -43,9 +43,16 @@ class TestMelody(TestCase):
         self.assertFalse(melody.set_melody(True))
         self.assertFalse(melody.set_melody(False))
 
-    def test_is_exist(self):
+    def test_is_exist_melody(self):
         melody = Melody()
-        self.assertTrue(melody.is_exist('C:/alarm_clock/melody.txt'))
+        melody.set_melody('melody')
+        self.assertFalse(melody.is_exist())
+        melody.set_melody('melody.txt')
+        self.assertTrue(melody.is_exist())
+
+    def test_is_exist_default_melody(self):
+        melody = Melody()
+        self.assertTrue(melody.is_exist(default=True))
 
 
 class TestAlarmClock(TestCase):
