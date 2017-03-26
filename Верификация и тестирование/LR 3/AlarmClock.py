@@ -8,7 +8,7 @@ class Time:
             return False
         elif (hour >= 25) or (hour <= -1):
             return False
-        self.hour = hour
+        self.hour = 0 if hour == 24 else hour
         return True
 
     def set_minutes(self, minutes):
@@ -16,8 +16,11 @@ class Time:
             return False
         elif (minutes >= 61) or (minutes <= -1):
             return False
-        self.minutes = minutes
+        self.minutes = 0 if minutes == 60 else minutes
         return True
+
+    def get_time(self):
+        return self.hour, self.minutes
 
 
 class Melody:

@@ -31,8 +31,7 @@ class TestTime(TestCase):
         time = Time()
         time.set_hour(24)
         time.set_minutes(60)
-        print(time.get_time())
-        self.assertEqual(time.get_time() == (0, 0))
+        self.assertEqual(time.get_time(), (0, 0))
 
 
 class TestMelody(TestCase):
@@ -43,6 +42,10 @@ class TestMelody(TestCase):
         self.assertFalse(melody.set_melody(3.43))
         self.assertFalse(melody.set_melody(True))
         self.assertFalse(melody.set_melody(False))
+
+    def test_is_exist(self):
+        melody = Melody()
+        self.assertTrue(melody.is_exist('C:/alarm_clock/melody.txt'))
 
 
 class TestAlarmClock(TestCase):
