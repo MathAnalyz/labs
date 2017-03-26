@@ -27,6 +27,13 @@ class TestTime(TestCase):
         self.assertFalse(time.set_minutes(True))
         self.assertFalse(time.set_minutes(False))
 
+    def test_set_midnight(self):
+        time = Time()
+        time.set_hour(24)
+        time.set_minutes(60)
+        print(time.get_time())
+        self.assertEqual(time.get_time() == (0, 0))
+
 
 class TestMelody(TestCase):
     def test_set_melody(self):
