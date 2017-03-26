@@ -4,20 +4,30 @@ class Time:
         self.minutes = 0
 
     def set_hour(self, hour):
+        if not isinstance(hour, int) or isinstance(hour, bool):
+            return False
+        elif (hour >= 25) or (hour <= -1):
+            return False
         self.hour = hour
         return True
 
     def set_minutes(self, minutes):
+        if not isinstance(minutes, int) or isinstance(minutes, bool):
+            return False
+        elif (minutes >= 61) or (minutes <= -1):
+            return False
         self.minutes = minutes
         return True
 
 
 class Melody:
     def __init__(self):
-        self.melody = ""
-        self.default_melody = ""
+        self.melody = ''
+        self.default_melody = ''
 
     def set_melody(self, melody):
+        if not isinstance(melody, str):
+            return False
         self.melody = melody
         return True
 
@@ -26,11 +36,10 @@ class AlarmClock:
     def __init__(self):
         self.alarms = dict()
 
-    def set_alarm(self, melody, hour, minutes):
+    def set_alarm(self, name_melody, hour, minutes):
         time = Time()
         melody = Melody()
-        if (time.set_hour(hour)
-            and time.set_minutes(minutes)
-            and melody.set_melody(melody)):
+        if (time.set_hour(hour) and time.set_minutes(minutes)) and melody.set_melody(name_melody):
             self.alarms[time] = melody
             return True
+        return False
