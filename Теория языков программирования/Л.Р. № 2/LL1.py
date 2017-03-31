@@ -1,26 +1,27 @@
-from Scaner import *
+from Scanner import *
 from deff import *
 
 m = []
 z = 0
 
+
 def epsilon():
     m.pop()
 
 
-def ll1(sc: TScaner):
+def ll1(sc: TScanner):
     global m
     fl = 1
     m.append(TEnd)
     m.append(neterm_Program)
-    lex, t = sc.scaner()
+    lex, t = sc.scan()
     while fl == 1:
         if m[len(m) - 1] < MinTypeTerminal:
             if m[len(m) - 1] == t:
                 if t == TEnd:
                     fl = 0
                 else:
-                    lex, t = sc.scaner()
+                    lex, t = sc.scan()
                     m.pop()
             else:
                 sc.print_error("Ожидался символ", lex)
@@ -33,15 +34,15 @@ def ll1(sc: TScaner):
                 else:
                     m.append(neterm_Program)
                     m.append(neterm_Description)
-                
+
             elif m[len(m) - 1] == neterm_Description:
                 m.pop()
                 if t == TStruct:
                     m.append(neterm_Struct)
                 elif t == TShort:
                     uk1 = sc.get_uk()
-                    lex1, t1 = sc.scaner()
-                    lex2, t2 = sc.scaner()
+                    lex1, t1 = sc.scan()
+                    lex2, t2 = sc.scan()
                     sc.put_uk(uk1)
                     if t1 == TInt:
                         if t2 == TMain:
@@ -60,7 +61,7 @@ def ll1(sc: TScaner):
                 m.pop()
                 if t == TShort:
                     uk1 = sc.get_uk()
-                    lex1, t1 = sc.scaner()
+                    lex1, t1 = sc.scan()
                     sc.put_uk(uk1)
                     if t1 == TInt:
                         m.append(TInt)
@@ -71,7 +72,7 @@ def ll1(sc: TScaner):
                     m.append(TIdent)
                 else:
                     epsilon()
-                
+
             elif m[len(m) - 1] == neterm_Function:
                 m.pop()
                 m.append(neterm_Block)
@@ -80,12 +81,12 @@ def ll1(sc: TScaner):
                 m.append(TMain)
                 m.append(TInt)
                 m.append(TShort)
-                
+
             elif m[len(m) - 1] == neterm_ListOfVariables:
                 m.pop()
                 m.append(neterm_AdditionallyList)
                 m.append(neterm_Variable)
-                
+
             elif m[len(m) - 1] == neterm_AdditionallyList:
                 if t == TComma:
                     m.append(neterm_AdditionallyList)
@@ -93,7 +94,7 @@ def ll1(sc: TScaner):
                     m.append(TComma)
                 else:
                     epsilon()
-                
+
             elif m[len(m) - 1] == neterm_Struct:
                 m.pop()
                 m.append(TSemicolon)
@@ -106,7 +107,7 @@ def ll1(sc: TScaner):
             elif m[len(m) - 1] == neterm_DescriptionsStruct:
                 if t == TShort:
                     uk1 = sc.get_uk()
-                    lex1, t1 = sc.scaner()
+                    lex1, t1 = sc.scan()
                     sc.put_uk(uk1)
                     if t1 == TInt:
                         m.append(neterm_DescriptionsStruct)
@@ -122,19 +123,19 @@ def ll1(sc: TScaner):
                     m.append(neterm_Type)
                 else:
                     epsilon()
-                
+
             elif m[len(m) - 1] == neterm_Variable:
                 m.pop()
                 m.append(neterm_Initialization)
                 m.append(TIdent)
-                
+
             elif m[len(m) - 1] == neterm_Initialization:
                 if t == TAssigment:
                     m.append(neterm_V)
                     m.append(TAssigment)
                 else:
                     epsilon()
-                
+
             elif m[len(m) - 1] == neterm_Block:
                 m.pop()
                 m.append(TRBrace)
@@ -146,8 +147,8 @@ def ll1(sc: TScaner):
                     m.append(neterm_Struct)
                 elif t == TShort:
                     uk1 = sc.get_uk()
-                    lex1, t1 = sc.scaner()
-                    lex2, t2 = sc.scaner()
+                    lex1, t1 = sc.scan()
+                    lex2, t2 = sc.scan()
                     sc.put_uk(uk1)
                     if t1 == TInt:
                         m.append(TSemicolon)
@@ -161,7 +162,7 @@ def ll1(sc: TScaner):
                     m.append(neterm_Type)
             elif m[len(m) - 1] == neterm_Content:
                 uk = sc.get_uk()
-                lex1, t1 = sc.scaner()
+                lex1, t1 = sc.scan()
                 sc.put_uk(uk)
                 if ((t1 == TIdent) | (t == TShort)) & (t != TLBrace):
                     m.append(neterm_Content)
@@ -184,23 +185,23 @@ def ll1(sc: TScaner):
                     m.append(neterm_Assignment)
                 else:
                     epsilon()
-                
+
             elif m[len(m) - 1] == neterm_CompositeOperator:
                 m.pop()
                 m.append(neterm_Block)
-                
+
             elif m[len(m) - 1] == neterm_Assignment:
                 m.pop()
                 m.append(TSemicolon)
                 m.append(neterm_V)
                 m.append(TAssigment)
                 m.append(neterm_VarOrElStruct)
-                
+
             elif m[len(m) - 1] == neterm_VarOrElStruct:
                 m.pop()
                 m.append(neterm_ElementOfStruct)
                 m.append(TIdent)
-                
+
             elif m[len(m) - 1] == neterm_ElementOfStruct:
                 if t == TDotLink:
                     m.append(neterm_ElementOfStruct)
@@ -208,7 +209,7 @@ def ll1(sc: TScaner):
                     m.append(TDotLink)
                 else:
                     epsilon()
-                
+
             elif m[len(m) - 1] == neterm_If:
                 m.pop()
                 m.append(neterm_Else)
@@ -217,7 +218,7 @@ def ll1(sc: TScaner):
                 m.append(neterm_V)
                 m.append(TLBracket)
                 m.append(TIf)
-                
+
             elif m[len(m) - 1] == neterm_Else:
                 m.pop()
                 if t == TElse:
@@ -225,12 +226,12 @@ def ll1(sc: TScaner):
                     m.append(TElse)
                 else:
                     epsilon()
-                
+
             elif m[len(m) - 1] == neterm_V:
                 m.pop()
                 m.append(neterm_V1)
                 m.append(neterm_W)
-                
+
             elif m[len(m) - 1] == neterm_V1:
                 if t == TMore:
                     m.append(neterm_V1)
@@ -250,12 +251,12 @@ def ll1(sc: TScaner):
                     m.append(TLessEqual)
                 else:
                     epsilon()
-                
+
             elif m[len(m) - 1] == neterm_W:
                 m.pop()
                 m.append(neterm_W1)
                 m.append(neterm_X)
-                
+
             elif m[len(m) - 1] == neterm_W1:
                 if t == TRShift:
                     m.append(neterm_W1)
@@ -267,12 +268,12 @@ def ll1(sc: TScaner):
                     m.append(TLShift)
                 else:
                     epsilon()
-                
+
             elif m[len(m) - 1] == neterm_X:
                 m.pop()
                 m.append(neterm_X1)
                 m.append(neterm_Y)
-                
+
             elif m[len(m) - 1] == neterm_X1:
                 if t == TPlus:
                     m.append(neterm_X1)
@@ -284,12 +285,12 @@ def ll1(sc: TScaner):
                     m.append(TMinus)
                 else:
                     epsilon()
-                
+
             elif m[len(m) - 1] == neterm_Y:
                 m.pop()
                 m.append(neterm_Y1)
                 m.append(neterm_Z)
-                
+
             elif m[len(m) - 1] == neterm_Y1:
                 if t == TMul:
                     m.append(neterm_Y1)
@@ -305,7 +306,7 @@ def ll1(sc: TScaner):
                     m.append(TDiv)
                 else:
                     epsilon()
-                
+
             elif m[len(m) - 1] == neterm_Z:
                 m.pop()
                 if t == TIdent:
@@ -326,9 +327,10 @@ def ll1(sc: TScaner):
 
 
 def __main__():
-    sc = TScaner('input.txt')
+    sc = TScanner('input.txt')
     ll1(sc)
     print('Синтаксических ошибок не обнаружено!')
+
 
 __main__()
 

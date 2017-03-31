@@ -1,17 +1,34 @@
-from Scaner import *
+from constants_for_scanner import *
 
 EMPTY = -1
 DATA_TYPE = ['TYPE_UNKNOWN', 'TYPE_INTEGER', 'TYPE_SHORT_INT',
              'TYPE_DOUBLE', 'TYPE_STRUCT', 'TYPE_FUNCT', 'TYPE_STRUCT_ITEM']
 
-scaner = None
+scanner = None
+
+
+class DataValue:
+    def __init__(self, value):
+        self.value = value
 
 
 class Node:
-    def __init__(self, id, dataType):
+    def __init__(self, id, data_type):
         self.id = id
-        self.dataType = dataType
-        self.idStruct = ''
+        self.data_type = data_type
+        self.data_value = None
+        self.id_struct = ''
+
+    def set_value(self, value):
+        self.data_value = DataValue(value)
+
+    def get_value(self):
+        return self.data_value.value
+
+
+def set_scanner(sc):
+    global scanner
+    scanner = sc
 
 
 class Tree:
@@ -28,37 +45,37 @@ class Tree:
         self.left = left
         self.right = right
 
-    def setLeft(self, data):
+    def set_left(self, data):
         t = Tree()
         t.init(None, None, self, data)
         self.left = t
 
-    def setRight(self, data):
+    def set_right(self, data):
         t = Tree()
         t.init(None, None, self, data)
         self.right = t
 
-    def findUp(self, id, fromNode=None):
-        if fromNode is None:
-            return self.findUp(id, self)
+    def find_up(self, id, from_node=None):
+        if from_node is None:
+            return self.find_up(id, self)
         else:
-            i = fromNode
+            i = from_node
             while i is not None:
                 if id == i.node.id:
                     break
                 i = i.up
             return i
 
-    def findDown(self, id, fromNode):
-        i = fromNode
+    def find_down(self, id, from_node):
+        i = from_node
         while i is not None:
             if id == i.node.id:
                 return i
             i = i.left
         return i
 
-    def findUpOneLevel(self, id, fromNode):
-        i = fromNode
+    def find_up_one_level(self, id, from_node):
+        i = from_node
         while i is not None:
             if i.up is None:
                 break
@@ -69,19 +86,22 @@ class Tree:
             i = i.up
         return None
 
-    def findRightLeft(self, id, fromNode=None):
-        if fromNode is None:
-            return self.findRightLeft(id, self)
+    def find_right_left(self, id, from_node=None):
+        if from_node is None:
+            return self.find_right_left(id, self)
         else:
-            i = fromNode.right
-            while (i is not None):
+            i = from_node.right
+            while i is not None:
                 if id == self.node.id:
                     break
                 i = i.left
             return i
 
     def print(self):
-        print('Вершина с данными', self.node.id, '--->')
+        if self.node.data_value is not None:
+            print('Вершина с данными', self.node.id, '--->', self.node.get_value())
+        else:
+            print('Вершина с данными', self.node.id, '--->')
         if self.left is not None:
             print('     слева данные', self.left.node.id)
         if self.right is not None:
@@ -92,133 +112,123 @@ class Tree:
             self.right.print()
 
     # Сематнические подпрограммы
-    def setCur(self, tree):
+    def set_cur(self, tree):
         self.current = tree
 
-    def setScaner(self, sc):
-        global scaner
-        scaner = sc
-
-    def getCur(self):
+    def get_cur(self):
         return self.current
 
-    def semInclude(self, a, t, identStruct=None):
-        if self.duplicateControl(a, self.current):
-            scaner.print_error('Повторное описание идентификатора', a)
+    def sem_include(self, a, t, id_struct=None):
+        if self.duplicate_control(a, self.current):
+            scanner.print_error('Повторное описание идентификатора', a)
         if t == DATA_TYPE.index('TYPE_FUNCT'):
             b = Node(a, t)
-            self.current.setLeft(b)
+            self.current.set_left(b)
             self.current = self.current.left
             return self.current
         if t == EMPTY:
             b = Node('', -1)
-            if self.current.node.dataType != DATA_TYPE.index('TYPE_FUNCT'):
+            if self.current.node.data_type != DATA_TYPE.index('TYPE_FUNCT'):
                 b.id = a
-                b.dataType = t
-                self.current.setLeft(b)
+                b.data_type = t
+                self.current.set_left(b)
                 self.current = self.current.left
             v = self.current
             b = Node('EMPTY', EMPTY)
-            self.current.setRight(b)
+            self.current.set_right(b)
             self.current = self.current.right
             return v
         elif t == DATA_TYPE.index('TYPE_STRUCT'):
             b = Node(a, t)
-            self.current.setLeft(b)
+            self.current.set_left(b)
             self.current = self.current.left
             v = self.current
             b = Node('EMPTYStruct', EMPTY)
-            self.current.setRight(b)
+            self.current.set_right(b)
             self.current = self.current.right
             return v
         elif t == DATA_TYPE.index('TYPE_STRUCT_ITEM'):
             b = Node(a, t)
-            b.idStruct = identStruct
-            self.current.setLeft(b)
+            b.id_structs = id_struct
+            self.current.set_left(b)
             self.current = self.current.left
-            v = self.semCheckStructOnLevel(identStruct)
+            v = self.sem_check_struct_on_level(id_struct)
             self.current.right = v.right
             return self.current
         else:
             b = Node(a, t)
-            self.current.setLeft(b)
+            self.current.set_left(b)
             self.current = self.current.left
             return self.current
 
-    def semSetType(self, address, t):
-        address.node.dataType = t
-
-    def semGetType(self, a):
-        v = self.findUp(a, self.current)
+    def sem_get_type(self, a):
+        v = self.find_up(a, self.current)
         if v is None:
-            scaner.print_error('Отсутствует описание идентификатора', a)
-        elif v.node.dataType == DATA_TYPE.index('TYPE_FUNCT'):
-            scaner.print_error('Неверное использование вызова функции', a)
+            scanner.print_error('Отсутствует описание идентификатора', a)
+        elif v.node.data_type == DATA_TYPE.index('TYPE_FUNCT'):
+            scanner.print_error('Неверное использование вызова функции', a)
         return v
 
-    def semGetFunction(self, a):
-        v = self.findUp(a, self.current)
+    def sem_get_function(self, a):
+        v = self.find_up(a, self.current)
         if v is None:
-            scaner.print_error('Отсутствует описание функции', a)
-        elif v.node.dataType == DATA_TYPE.index('TYPE_FUNCT'):
-            scaner.print_error('Не является функцией идентификатор', a)
+            scanner.print_error('Отсутствует описание функции', a)
+        elif v.node.data_type == DATA_TYPE.index('TYPE_FUNCT'):
+            scanner.print_error('Не является функцией идентификатор', a)
         return v
 
-    def duplicateControl(self, a, address):
+    def duplicate_control(self, a, address):
         if (a == 'EMPTY') | (a == 'EMPTYStruct'):
             return 0
-        if self.findUpOneLevel(a, address) is None:
+        if self.find_up_one_level(a, address) is None:
             return 0
         return 1
 
-    def getDataType(self, a, t):
+    def get_data_type(self, a, t):
         if t == TInt:
             return DATA_TYPE.index('TYPE_INTEGER')
         elif t == TDouble:
             return DATA_TYPE.index('TYPE_DOUBLE')
-        elif (t == TIdent) & (self.semCheckStructOnLevel(a) is not None):
+        elif t == TIdent and self.sem_check_struct_on_level(a) is not None:
             return DATA_TYPE.index('TYPE_STRUCT_ITEM')
         return DATA_TYPE.index('TYPE_UNKNOWN')
 
-    def semCheckStructOnLevel(self, a):
-        v = self.findUp(a, self.current)
+    def sem_check_struct_on_level(self, a):
+        v = self.find_up(a, self.current)
         if v is None:
-            scaner.print_error('Отсутствует описание структуры', a)
-        elif v.node.dataType == DATA_TYPE.index('TYPE_FUNCT'):
-            scaner.print_error('Неверное использование вызова функции', a)
-        elif v.node.dataType == DATA_TYPE.index('TYPE_INTEGER'):
-            scaner.print_error('Неверное использование int', a)
-        elif v.node.dataType == DATA_TYPE.index('TYPE_DOUBLE'):
-            scaner.print_error('Неверное использование double', a)
-        elif v.node.dataType == DATA_TYPE.index('TYPE_STRUCT_ITEM'):
-            scaner.print_error('Неверное использование элемента структууры', a)
+            scanner.print_error('Отсутствует описание структуры', a)
+        elif v.node.data_type == DATA_TYPE.index('TYPE_FUNCT'):
+            scanner.print_error('Неверное использование вызова функции', a)
+        elif v.node.data_type == DATA_TYPE.index('TYPE_INTEGER'):
+            scanner.print_error('Неверное использование int', a)
+        elif v.node.data_type == DATA_TYPE.index('TYPE_DOUBLE'):
+            scanner.print_error('Неверное использование double', a)
+        elif v.node.data_type == DATA_TYPE.index('TYPE_STRUCT_ITEM'):
+            scanner.print_error('Неверное использование элемента структууры', a)
         return v
 
-    def getUzelStruct(self, a):
-        if self.node.dataType != DATA_TYPE.index('TYPE_STRUCT_ITEM'):
-            scaner.print_error('Идентификатор должен быть структурой', self.node.id)
-        v = self.findDown(a, self.right)
+    def get_node_struct(self, a):
+        if self.node.data_type != DATA_TYPE.index('TYPE_STRUCT_ITEM'):
+            scanner.print_error('Идентификатор должен быть структурой', self.node.id)
+        v = self.find_down(a, self.right)
         if v is None:
-            scaner.print_error('Такого идентификатора нет в указанной структуре', a)
+            scanner.print_error('Такого идентификатора нет в указанной структуре', a)
         return v
 
-    def getThisType(self):
-        return self.node.dataType
+    def get_this_type(self):
+        return self.node.data_type
 
-    def checkDataTypes(self, type1, type2=None):
+    def check_data_types(self, type1, type2=None):
         if type2 is None:
-            if (self.node.dataType == DATA_TYPE.index('TYPE_STRUCT_ITEM')) & \
+            if (self.node.data_type == DATA_TYPE.index('TYPE_STRUCT_ITEM')) & \
                     (type1 == DATA_TYPE.index('TYPE_STRUCT_ITEM')):
                 return DATA_TYPE.index('TYPE_STRUCT_ITEM')
-            elif (self.node.dataType == DATA_TYPE.index('TYPE_DOUBLE')) & \
+            elif (self.node.data_type == DATA_TYPE.index('TYPE_DOUBLE')) & \
                     ((type1 == DATA_TYPE.index('TYPE_DOUBLE')) | (type1 == DATA_TYPE.index('TYPE_INTEGER'))):
                 return DATA_TYPE.index('TYPE_DOUBLE')
-            elif (self.node.dataType == DATA_TYPE.index('TYPE_INTEGER')) & \
-                    (type1 == DATA_TYPE.index('TYPE_INTEGER')):
+            elif (self.node.data_type == DATA_TYPE.index('TYPE_INTEGER')) & \
+                    ((type1 == DATA_TYPE.index('TYPE_INTEGER')) | (type1 == DATA_TYPE.index('TYPE_DOUBLE'))):
                 return DATA_TYPE.index('TYPE_INTEGER')
-            elif (self.node.dataType == DATA_TYPE.index('TYPE_INTEGER')) & \
-                    (type1 == DATA_TYPE.index('TYPE_DOUBLE')):
-                return DATA_TYPE.index('TYPE_DOUBLE')
         else:
             if (type1 == DATA_TYPE.index('TYPE_STRUCT_ITEM')) & \
                     (type2 == DATA_TYPE.index('TYPE_STRUCT_ITEM')):
@@ -232,10 +242,10 @@ class Tree:
             elif (type1 == DATA_TYPE.index('TYPE_INTEGER')) & \
                     (type2 == DATA_TYPE.index('TYPE_DOUBLE')):
                 return DATA_TYPE.index('TYPE_DOUBLE')
-        scaner.print_error('Приведение типов невозможно', '')
+        scanner.print_error('Приведение типов невозможно', '')
         return DATA_TYPE.index('TYPE_UNKNOWN')
 
-    def checkDataTypeToBool(self, t):
-        if (t == DATA_TYPE.index('TYPE_DOUBLE')) | (t == DATA_TYPE.index('TYPE_INTEGER')):
+    def check_data_type_to_bool(self, t):
+        if (t == DATA_TYPE.index('TYPE_DOUBLE')) or (t == DATA_TYPE.index('TYPE_INTEGER')):
             return t
-        scaner.print_error('Приведение типа к bool невозможно', '')
+        scanner.print_error('Приведение типа к bool невозможно', '')
