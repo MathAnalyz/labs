@@ -223,3 +223,8 @@ class Node:
                     return DATA_TYPE.index('TYPE_DOUBLE')
         scanner.print_error('Приведение типов невозможно', '')
         return DATA_TYPE.index('TYPE_UNKNOWN')
+
+    def check_bool(self, type1):
+        if type1 == DATA_TYPE.index('TYPE_SHORT_INT') or type1 == DATA_TYPE.index('DOUBLE'):
+            return True
+        scanner.print_error('Приведение типа к bool невозможно', '')

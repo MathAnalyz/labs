@@ -68,7 +68,7 @@ class TestAlarmClock(TestCase):
 
     def test_run_alarm(self):
         alarm_clock = AlarmClock()
-        alarm_clock.set_alarm('melody.txt', 23, 22)
+        alarm_clock.set_alarm('melody.txt', 15, 31)
         alarm_clock.run_alarm()
 
 

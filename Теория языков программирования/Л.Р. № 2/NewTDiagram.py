@@ -54,9 +54,9 @@ class TDiagram:
 
     # Данные
     def data(self):
-        lexeme, type_data = self.sc.scan()
+        lexeme_data, type_data = self.sc.scan()
         if (type_data != TShort) & (type_data != TDouble) & (type_data != TIdent):
-            self.sc.print_error("Ошибка описания. Ожидалось short, double или название структуры", lexeme)
+            self.sc.print_error("Ошибка описания. Ожидалось short, double или название структуры", lexeme_data)
         if type_data == TShort:
             lexeme, type_lexeme = self.sc.scan()
             if type_lexeme != TInt:
@@ -64,10 +64,10 @@ class TDiagram:
         while True:
             id_struct = None
             if type_data == TIdent:
-                if self.tree.find_struct_declaration(lexeme) is None:
-                    self.sc.print_error('Отстутствует описание структуры', lexeme)
+                if self.tree.find_struct_declaration(lexeme_data) is None:
+                    self.sc.print_error('Отстутствует описание структуры', lexeme_data)
                 else:
-                    id_struct = lexeme
+                    id_struct = lexeme_data
             lexeme, type_lexeme = self.sc.scan()
             if type_lexeme != TIdent:
                 self.sc.print_error("Ожидался идентификатор", lexeme)
@@ -82,6 +82,7 @@ class TDiagram:
                 lexeme, type_lexeme = self.sc.scan()
             if type_lexeme != TComma:
                 break
+
         if type_lexeme != TSemicolon:
             self.sc.print_error("Ожидалась ;", lexeme)
 
@@ -295,7 +296,8 @@ class TDiagram:
         lex, t = self.sc.scan()
         if t != TLBracket:
             self.sc.print_error("Ожидался (", lex)
-        self.priority_level_1()
+        type1 = self.priority_level_1()
+        self.tree.check_bool(type1)
         lex, t = self.sc.scan()
         if t != TRBracket:
             self.sc.print_error("Ожидался )", lex)

@@ -2,7 +2,6 @@ import os
 import datetime
 import time
 
-
 class Time:
     def __init__(self):
         self.hour = 0
@@ -69,7 +68,7 @@ class AlarmClock:
                 return False
         if result:
             self.alarms[time_c.get_time()] = melody
-            if reset:
+            if reset and self.is_exist(time_c):
                 print('Он был переустановлен.')
         return result
 
@@ -78,15 +77,16 @@ class AlarmClock:
             return False
         return True
 
-    def play_melody(self, time):
-        melody = self.alarms.get(time.get_time())
+    def play_melody(self, time_c):
+        melody = self.alarms.get(time_c.get_time())
         print('Звучит аудиозапись - ' + melody.get_name_melody() +
-              '. Время - ' + str(time.get_time()[0]) + ':' + str(time.get_time()[1]) + '.')
+              '. Время - ' + str(time_c.get_time()[0]) + ':' + str(time_c.get_time()[1]) + '.')
 
     def run_alarm(self):
         time_now = datetime.datetime.now()
         shift = 60 - time_now.second
         time.sleep(shift - 1)
+
         while True:
             time_now = datetime.datetime.now()
             time_c = Time()
@@ -97,3 +97,45 @@ class AlarmClock:
                 break
             shift = 60 - time_now.second
             time.sleep(shift - 1)
+
+        time.sleep(5)
+
+    def delete_alarm(self, hour, minutes):
+        if self.alarms.get((hour, minutes)) is None:
+            return False
+        else:
+            self.alarms.pop((hour, minutes))
+            return True
+
+    def print_list_alarms(self):
+        list_alarms = [(key, value.get_name_melody()) for key, value in self.alarms.items()]
+        print('\nСписок установленных будильников: \nВремя Мелодия')
+        list_alarms.sort()
+        for alarm in list_alarms:
+            print(str(alarm[0][0]) + ':' + str(alarm[0][1]) + ' ' + alarm[1])
+        print('____________________________________\n')
+
+
+def __main__():
+    budilnik = AlarmClock()
+    while True:
+        budilnik.print_list_alarms()
+        menu = 'Меню:\n 1)Добавить будильник\n 2)Удалить будильник\n 3)Запустить будильник\n'
+        k = input(menu + 'Выберите действие: ')
+        if k == '1':
+            hour = input('Введите час: ')
+            minutes = input('Введите минуту: ')
+            path_to_melody = input('Введите полный путь к мелодии: ')
+            budilnik.set_alarm(path_to_melody, int(hour), int(minutes), reset=True)
+        elif k == '2':
+            hour = input('Введите часы: ')
+            minutes = input('Введите минуты: ')
+            if budilnik.delete_alarm(int(hour), int(minutes)):
+                print('Будильник удалён.\n')
+            else:
+                print('Будильника на данное время нет.')
+        if k == '3':
+            budilnik.run_alarm()
+        else:
+            print('Некорректная команда.')
+__main__()

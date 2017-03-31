@@ -20,8 +20,9 @@ short int main(){
     double modInt = 21 % (10 + 10);
     short int a = 1;
     double b = 2;
-    double c = a + b;
-    structura1 s1;
+    //if (1)
+    //   double c = a + b;
+    structura1 s1, s22;
     s1.c = 2 + s1.c;
     structura2 s2;
     s2.asd.c = 3;
