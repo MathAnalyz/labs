@@ -77,12 +77,12 @@ class TDiagram:
                 v = self.tree.semantic_include(lexeme, type_data)
             lexeme, type_lexeme = self.sc.scan()
             if type_lexeme == TAssigment:
-                a = self.priority_level_1()
-                v.check_data_types(a)
+                type1, val1 = self.priority_level_1()
+                v.check_data_types(type1)
+                v.set_value(val1)
                 lexeme, type_lexeme = self.sc.scan()
             if type_lexeme != TComma:
                 break
-
         if type_lexeme != TSemicolon:
             self.sc.print_error("Ожидалась ;", lexeme)
 
@@ -202,72 +202,100 @@ class TDiagram:
             lexeme, type_lexeme = self.sc.scan()
         if type_lexeme != TAssigment:
             self.sc.print_error("Ожидалось =", lexeme)
-        type1 = self.priority_level_1()
+        type1, val1 = self.priority_level_1()
         v.check_data_types(type1)
+        v.set_value(val1)
         lexeme, type_lexeme = self.sc.scan()
         if type_lexeme != TSemicolon:
             self.sc.print_error("Ожидалось ;", lexeme)
 
     def priority_level_1(self):
-        type1 = self.priority_level_2()
+        type1, val1 = self.priority_level_2()
         uk = self.sc.get_uk()
         lexeme, type_lexeme = self.sc.scan()
         while (type_lexeme == TMore) or (type_lexeme == TMoreEqual) or \
                 (type_lexeme == TLess) or (type_lexeme == TLessEqual):
-            type2 = self.priority_level_2()
+            type2, val2 = self.priority_level_2()
             type1 = self.tree.check_data_types(type1, type2)
+            if type_lexeme == TMore:
+                val1 = True if val1 > val2 else False
+            elif type_lexeme == TLess:
+                val1 = True if val1 < val2 else False
+            elif type_lexeme == TMoreEqual:
+                val1 = True if val1 >= val2 else False
+            elif type_lexeme == TLess:
+                val1 = True if val1 <= val2 else False
             uk = self.sc.get_uk()
             lexeme, type_lexeme = self.sc.scan()
         self.sc.put_uk(uk)
-        return type1
+        return type1, val1
 
     def priority_level_2(self):
-        type1 = self.priority_level_3()
+        type1, val1 = self.priority_level_3()
         uk = self.sc.get_uk()
-        lex, t = self.sc.scan()
-        while (t == TRShift) | (t == TLShift):
-            type2 = self.priority_level_3()
+        lexeme, type_lexeme = self.sc.scan()
+        while (type_lexeme == TRShift) | (type_lexeme == TLShift):
+            type2, val2 = self.priority_level_3()
             type1 = self.tree.check_data_types(type1, type2)
+            if type1 == DATA_TYPE.index('TYPE_SHORT_INT'):
+                if type_lexeme == TLShift:
+                    val1 <<= val2
+                elif type_lexeme == TRShift:
+                    val1 >>= val2
             uk = self.sc.get_uk()
-            lex, t = self.sc.scan()
+            lexeme, type_lexeme = self.sc.scan()
         self.sc.put_uk(uk)
-        return type1
+        return type1, val1
 
     def priority_level_3(self):
-        type1 = self.priority_level_4()
+        type1, val1 = self.priority_level_4()
         uk = self.sc.get_uk()
-        lex, t = self.sc.scan()
-        while (t == TPlus) | (t == TMinus):
-            type2 = self.priority_level_4()
+        lexeme, type_lexeme = self.sc.scan()
+        while (type_lexeme == TPlus) or (type_lexeme == TMinus):
+            type2, val2 = self.priority_level_4()
             type1 = self.tree.check_data_types(type1, type2)
+            if type_lexeme == TPlus:
+                val1 += val2
+            elif type_lexeme == TMinus:
+                val1 -= val2
             uk = self.sc.get_uk()
-            lex, t = self.sc.scan()
+            lexeme, type_lexeme = self.sc.scan()
         self.sc.put_uk(uk)
-        return type1
+        return type1, val1
 
     def priority_level_4(self):
-        type1 = self.elementary_expression()
+        type1, val1 = self.elementary_expression()
         uk = self.sc.get_uk()
-        lex, t = self.sc.scan()
-        while (t == TMod) | (t == TDiv) | (t == TMul):
-            type2 = self.elementary_expression()
+        lexeme, type_lexeme = self.sc.scan()
+        while (type_lexeme == TMod) | (type_lexeme == TDiv) | (type_lexeme == TMul):
+            type2, val2 = self.elementary_expression()
             type1 = self.tree.check_data_types(type1, type2)
+            if type_lexeme == TMod:
+                if type1 == DATA_TYPE.index('TYPE_SHORT_INT'):
+                    val1 %= val2
+                else:
+                    self.sc.print_error('Операция не определена для double.', '%')
+            elif type_lexeme == TMul:
+                val1 *= val2
+            elif type_lexeme == TDiv:
+                val1 /= val2
             uk = self.sc.get_uk()
-            lex, t = self.sc.scan()
+            lexeme, type_lexeme = self.sc.scan()
         self.sc.put_uk(uk)
-        return type1
+        return type1, val1
 
     def elementary_expression(self):
         lexeme, type_lexeme = self.sc.scan()
         if type_lexeme == TLBracket:
-            type1 = self.priority_level_1()
+            type1, val1 = self.priority_level_1()
             lexeme, type_lexeme = self.sc.scan()
             if type_lexeme != TRBracket:
                 self.sc.print_error("Ожидалась )", lexeme)
-            return type1
+            return type1, val1
         elif type_lexeme == TIdent:
             v = self.tree.semantic_get_node(lexeme)
             type1 = v.get_this_type()
+            val1 = v.get_value()
             uk = self.sc.get_uk()
             lexeme, type_lexeme = self.sc.scan()
             while type_lexeme == TDotLink:
@@ -276,42 +304,43 @@ class TDiagram:
                     self.sc.print_error('Ожидался идентификатор', lexeme)
                 v = v.get_node_struct(lexeme)
                 type1 = v.get_this_type()
+                val1 = v.get_value()
                 uk = self.sc.get_uk()
                 lexeme, type_lexeme = self.sc.scan()
             self.sc.put_uk(uk)
-            return type1
+            return type1, val1
         elif (type_lexeme != TConstDoubleExp) & (type_lexeme != TConstInt10):
             self.sc.print_error("Ожидался идентификатор или константа", lexeme)
         elif type_lexeme == TConstInt10:
-            return DATA_TYPE.index('TYPE_SHORT_INT')
+            return DATA_TYPE.index('TYPE_SHORT_INT'), int(lexeme)
         elif type_lexeme == TConstDoubleExp:
-            return DATA_TYPE.index('TYPE_DOUBLE')
-        return DATA_TYPE.index('TYPE_UNKNOWN')
+            return DATA_TYPE.index('TYPE_DOUBLE'), float(lexeme)
+        return DATA_TYPE.index('TYPE_UNKNOWN'), None
 
     # Условный оператор
     def if_operator(self):
-        lex, t = self.sc.scan()
-        if t != TIf:
-            self.sc.print_error("Ожидался if", lex)
-        lex, t = self.sc.scan()
-        if t != TLBracket:
-            self.sc.print_error("Ожидался (", lex)
-        type1 = self.priority_level_1()
+        lexeme, type_lexeme = self.sc.scan()
+        if type_lexeme != TIf:
+            self.sc.print_error("Ожидался if", lexeme)
+        lexeme, type_lexeme = self.sc.scan()
+        if type_lexeme != TLBracket:
+            self.sc.print_error("Ожидался (", lexeme)
+        type1, val1 = self.priority_level_1()
         self.tree.check_bool(type1)
-        lex, t = self.sc.scan()
-        if t != TRBracket:
-            self.sc.print_error("Ожидался )", lex)
+        lexeme, type_lexeme = self.sc.scan()
+        if type_lexeme != TRBracket:
+            self.sc.print_error("Ожидался )", lexeme)
         self.operator()
         uk = self.sc.get_uk()
-        lex, t = self.sc.scan()
-        if t == TElse:
+        lexeme, type_lexeme = self.sc.scan()
+        if type_lexeme == TElse:
             self.operator()
         else:
             self.sc.put_uk(uk)
 
 
 def __main__():
-    scanner = TScanner("for_tree.txt")
+    scanner = TScanner("input.txt")
     td = TDiagram(scanner)
     td.program()
     td.tree.print()

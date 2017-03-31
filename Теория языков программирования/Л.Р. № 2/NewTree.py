@@ -15,22 +15,29 @@ def set_scanner(sc):
 class DataInNode:
     def __init__(self, id, data_type):
         self.id = id
-        self.data_type = data_type
+        self.type = data_type
         self.id_struct = ''
+        self.value = None
 
 
 class Node:
     current = None
 
     def __init__(self, parent=None, left=None, right=None, data=None):
-        self.data_in_node = data
+        self.data = data
         if data is None:
-            self.data_in_node = DataInNode('Корень', 0)
+            self.data = DataInNode('Корень', 0)
         self.parent = parent
         self.left = left
         self.right = right
 
     # ФУНКЦИИ ОБРАБОТКИ БИНАРНОГО ДЕРЕВА
+    def set_value(self, value):
+        self.data.value = value
+
+    def get_value(self):
+        return self.data.value
+
     def set_left(self, data_left: DataInNode):
         """
         Создает левого потомка.
@@ -55,7 +62,7 @@ class Node:
         else:
             i = from_node
             while i is not None:
-                if id == i.data_in_node.id:
+                if id == i.data.id:
                     break
                 i = i.parent
             return i
@@ -67,7 +74,7 @@ class Node:
         """
         i = from_node
         while i is not None:
-            if id == i.data_in_node.id:
+            if id == i.data.id:
                 return i
             i = i.left
         return i
@@ -85,7 +92,7 @@ class Node:
         else:
             i = from_node.right
             while i is not None:
-                if id == self.data_in_node.id:
+                if id == self.data.id:
                     break
                 i = i.left
             return i
@@ -94,11 +101,11 @@ class Node:
         """
         Выводит дерево правым обходом в консоль.
         """
-        print(shift, 'Вершина', self.data_in_node.id, '--->', DATA_TYPE[self.data_in_node.data_type])
+        print(shift, 'Вершина', self.data.id, '--->', self.data.value)
         if self.left is not None:
-            print(shift, '   слева', self.left.data_in_node.id)
+            print(shift, '   слева', self.left.data.id)
         if self.right is not None:
-            print(shift, '   справа', self.right.data_in_node.id)
+            print(shift, '   справа', self.right.data.id)
         if self.right is not None:
             self.right.print(shift + '      ')
         if self.left is not None:
@@ -117,7 +124,7 @@ class Node:
                 break
             elif i.parent.right == i:
                 break
-            if id == i.data_in_node.id:
+            if id == i.data.id:
                 return i
             i = i.parent
         return None
@@ -130,7 +137,7 @@ class Node:
         return self.current
 
     def get_this_type(self):
-        return self.data_in_node.data_type
+        return self.data.type
 
     def get_data_type(self, type_id):
         if type_id == TShort:
@@ -145,8 +152,8 @@ class Node:
 
     def get_node_struct(self, id):
         v = self.find_down(id, self.right)
-        # if v.data_in_node.data_type == DATA_TYPE.index('TYPE_STRUCT'):
-        #    scanner.print_error('Нельзя присваивать типу данных.', self.data_in_node.id)
+        # if v.data.data_type == DATA_TYPE.index('TYPE_STRUCT'):
+        #    scanner.print_error('Нельзя присваивать типу данных.', self.data.id)
         if v is None:
             scanner.print_error('Такого идентификатора нет в указанной структуре', id)
         return v
@@ -156,7 +163,7 @@ class Node:
             scanner.print_error('Повторное описание идентификатора', id)
         if id == 'блок':
             b = DataInNode(id, type_id)
-            if self.current.data_in_node.data_type == DATA_TYPE.index('TYPE_MAIN'):
+            if self.current.data.data_type == DATA_TYPE.index('TYPE_MAIN'):
                 self.current.set_right(b)
                 self.current = self.current.right
             else:
@@ -189,7 +196,7 @@ class Node:
         return self.current
 
     def semantic_set_type(self, node, new_type):
-        node.data_in_node.data_type = new_type
+        node.data.data_type = new_type
 
     def semantic_get_node(self, id):
         v = self.find_up(id, self.current)
@@ -203,13 +210,13 @@ class Node:
         return 1
 
     def check_data_types(self, type1, type2=None):
-        if self.data_in_node.id_struct != '':
-            scanner.print_error('Нельзя присваивать значение типу данных.', self.data_in_node.id)
+        if self.data.id_struct != '':
+            scanner.print_error('Нельзя присваивать значение типу данных.', self.data.id)
         if type2 is None:
-            if (self.data_in_node.data_type == DATA_TYPE.index('TYPE_DOUBLE')) & \
+            if (self.data.type == DATA_TYPE.index('TYPE_DOUBLE')) & \
                     ((type1 == DATA_TYPE.index('TYPE_DOUBLE')) | (type1 == DATA_TYPE.index('TYPE_SHORT_INT'))):
                 return DATA_TYPE.index('TYPE_DOUBLE')
-            elif (self.data_in_node.data_type == DATA_TYPE.index('TYPE_SHORT_INT')) & \
+            elif (self.data.type == DATA_TYPE.index('TYPE_SHORT_INT')) & \
                     ((type1 == DATA_TYPE.index('TYPE_SHORT_INT')) | (type1 == DATA_TYPE.index('TYPE_DOUBLE'))):
                 return DATA_TYPE.index('TYPE_SHORT_INT')
         else:

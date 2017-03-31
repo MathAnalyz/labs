@@ -8,6 +8,6 @@ double mul = 21.1E0 / (10 + 10);
 
 double modInt = 21 % (10 + 10);
 
-double modDouble = 21.1E0 % (10 + 10);
+short int rshift = 32 >> 2;
 
-//
+//double modDouble = 21.1E0 % (10 + 10);

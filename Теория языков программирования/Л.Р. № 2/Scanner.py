@@ -201,7 +201,7 @@ class TScanner:
                     i += 1
                     self.position += 1
                     return lexeme, TLessEqual
-                if self.text[self.position] == '>':
+                if self.text[self.position] == '<':
                     lexeme += self.text[self.position]
                     i += 1
                     self.position += 1
