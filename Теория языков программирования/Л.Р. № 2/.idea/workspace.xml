@@ -5,25 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd3f22c3-9f7f-4ebf-9dc5-f86c38369c10" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NewTDiagram.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/NewTree.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scanner.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/constants_for_scanner.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/for_diagrams.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/for_scanner.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/for_tree.txt" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Scaner.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/i.txt" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Верификация и тестирование/LR 3/AlarmClock.py" afterPath="$PROJECT_DIR$/../../Верификация и тестирование/LR 3/AlarmClock.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Верификация и тестирование/LR 3/test_alarmClock.py" afterPath="$PROJECT_DIR$/../../Верификация и тестирование/LR 3/test_alarmClock.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/ТЯП.iml" afterPath="$PROJECT_DIR$/.idea/ТЯП.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/LL1.py" afterPath="$PROJECT_DIR$/LL1.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/TDiagram.py" afterPath="$PROJECT_DIR$/TDiagram.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tree.py" afterPath="$PROJECT_DIR$/Tree.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/input.txt" afterPath="$PROJECT_DIR$/input.txt" />
     </list>
     <ignored path="ТЯП.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -553,6 +537,14 @@
       <option name="presentableId" value="Default" />
       <updated>1480138416229</updated>
     </task>
+    <task id="LOCAL-00001" summary="Переписано построение дерева и таблиц. Исправлен сканер.">
+      <created>1490941910621</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1490941910621</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TodoView">
@@ -629,6 +621,10 @@
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Переписано построение дерева и таблиц. Исправлен сканер." />
+    <option name="LAST_COMMIT_MESSAGE" value="Переписано построение дерева и таблиц. Исправлен сканер." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
