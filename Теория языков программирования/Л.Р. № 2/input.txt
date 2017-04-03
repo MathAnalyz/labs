@@ -6,8 +6,31 @@ short int div = 21.1E0 / 10 + 10;
 
 double mul = 21.1E0 / (10 + 10);
 
-double modInt = 21 % (10 + 10);
+//double modInt = 21 % (10 + 10);
 
 short int rshift = 32 >> 2;
 
+struct struct1{ double a; };
+
 //double modDouble = 21.1E0 % (10 + 10);
+
+short int main()
+{
+    if (2 < 3) if (2 < 3) {
+    double mul = 2.3E0 * 2.14E0;
+    mul = 2 + 4 + rshift;
+    if (mul > rshift)
+        if (mul < 0)
+            mul = 1;
+        else
+            mul = 1 - 2;
+    else
+        mul = 0;
+    struct1 s1, s2;
+    s1.a = 2;
+    s2.a = 5 + s1.a;
+    { double mul = 2;
+      s2.a = s2.a + mul;
+    }
+    }
+}

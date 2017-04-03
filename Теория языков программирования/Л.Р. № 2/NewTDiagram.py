@@ -2,6 +2,8 @@ from Scanner import TScanner
 from NewTree import *
 from constants_for_scanner import *
 
+flag_interpretation = True
+
 
 class TDiagram:
     def __init__(self, scan):
@@ -80,6 +82,7 @@ class TDiagram:
                 type1, val1 = self.priority_level_1()
                 v.check_data_types(type1)
                 v.set_value(val1)
+                print(v.data.id, ' = ',v.data.value)
                 lexeme, type_lexeme = self.sc.scan()
             if type_lexeme != TComma:
                 break
@@ -129,7 +132,7 @@ class TDiagram:
         if type_lexeme != TLBrace:
             self.sc.print_error("Ожидалась {", lexeme)
         while True:
-            self.data_in_structs(v.data_in_node.id)
+            self.data_in_structs(v.data.id)
             uk = self.sc.get_uk()
             lexeme, type_lexeme = self.sc.scan()
             if type_lexeme == TRBrace:
@@ -144,30 +147,40 @@ class TDiagram:
 
     # Блок
     def block(self):
+        global flag_interpretation
         lexeme, type_lexeme = self.sc.scan()
-        if type_lexeme != TLBrace:
-            self.sc.print_error("Ожидалось {", lexeme)
-        v = self.tree.semantic_include('блок', DATA_TYPE.index('TYPE_UNKNOWN'))
-        uk = self.sc.get_uk()
-        lexeme, type_lexeme = self.sc.scan()
-        uk2 = self.sc.get_uk()
-        lexeme, t2 = self.sc.scan()
-        while type_lexeme != TRBrace:
-            self.sc.put_uk(uk)
-            if ((type_lexeme == TShort) and (t2 == TInt)) or \
-                    (type_lexeme == TDouble) or \
-                    ((type_lexeme == TIdent) and (t2 == TIdent)):
-                self.data()
-            else:
-                self.operator()
+        if flag_interpretation:
+            if type_lexeme != TLBrace:
+                self.sc.print_error("Ожидалось {", lexeme)
+            v = self.tree.semantic_include('блок', DATA_TYPE.index('TYPE_UNKNOWN'))
             uk = self.sc.get_uk()
             lexeme, type_lexeme = self.sc.scan()
             uk2 = self.sc.get_uk()
             lexeme, t2 = self.sc.scan()
-        self.sc.put_uk(uk2)
-        if type_lexeme != TRBrace:
-            self.sc.print_error("Ожидалась }", lexeme)
-        self.tree.set_current(v)
+            while type_lexeme != TRBrace:
+                self.sc.put_uk(uk)
+                if ((type_lexeme == TShort) and (t2 == TInt)) or \
+                        (type_lexeme == TDouble) or \
+                        ((type_lexeme == TIdent) and (t2 == TIdent)):
+                    self.data()
+                else:
+                    self.operator()
+                uk = self.sc.get_uk()
+                lexeme, type_lexeme = self.sc.scan()
+                uk2 = self.sc.get_uk()
+                lexeme, t2 = self.sc.scan()
+            self.sc.put_uk(uk2)
+            if type_lexeme != TRBrace:
+                self.sc.print_error("Ожидалась }", lexeme)
+            self.tree.set_current(v)
+        else:
+            g = 1
+            while g != 0:
+                lexeme, type_lexeme = self.sc.scan()
+                if type_lexeme == TLBrace:
+                    g += 1
+                elif type_lexeme == TRBrace:
+                    g -= 1
 
     # Оператор
     def operator(self):
@@ -185,29 +198,35 @@ class TDiagram:
 
     # Присваивание
     def assignment(self):
+        global flag_interpretation
         lexeme, type_lexeme = self.sc.scan()
-        if type_lexeme != TIdent:
-            self.sc.print_error("Ожидался идентификатор", lexeme)
-        v = self.tree.semantic_get_node(lexeme)
-        if v.data_in_node.data_type == DATA_TYPE.index('TYPE_STRUCT'):
-            self.sc.print_error('Нельзя присваивать значение типу данных.', v.data_in_node.id)
-        lexeme, type_lexeme = self.sc.scan()
-        while type_lexeme == TDotLink:
-            if v.data_in_node.id_struct == '':
-                self.sc.print_error("Переменная не является структурой.", v.data_in_node.id)
-            lexeme, type_lexeme = self.sc.scan()
+        if flag_interpretation:
             if type_lexeme != TIdent:
                 self.sc.print_error("Ожидался идентификатор", lexeme)
-            v = v.get_node_struct(lexeme)
+            v = self.tree.semantic_get_node(lexeme)
+            if v.data.type == DATA_TYPE.index('TYPE_STRUCT'):
+                self.sc.print_error('Нельзя присваивать значение типу данных.', v.data.id)
             lexeme, type_lexeme = self.sc.scan()
-        if type_lexeme != TAssigment:
-            self.sc.print_error("Ожидалось =", lexeme)
-        type1, val1 = self.priority_level_1()
-        v.check_data_types(type1)
-        v.set_value(val1)
-        lexeme, type_lexeme = self.sc.scan()
-        if type_lexeme != TSemicolon:
-            self.sc.print_error("Ожидалось ;", lexeme)
+            while type_lexeme == TDotLink:
+                if v.data.id_struct == '':
+                    self.sc.print_error("Переменная не является структурой.", v.data.id)
+                lexeme, type_lexeme = self.sc.scan()
+                if type_lexeme != TIdent:
+                    self.sc.print_error("Ожидался идентификатор", lexeme)
+                v = v.get_node_struct(lexeme)
+                lexeme, type_lexeme = self.sc.scan()
+            if type_lexeme != TAssigment:
+                self.sc.print_error("Ожидалось =", lexeme)
+            type1, val1 = self.priority_level_1()
+            v.check_data_types(type1)
+            v.set_value(val1)
+            print(v.data.id, ' = ',v.data.value)
+            lexeme, type_lexeme = self.sc.scan()
+            if type_lexeme != TSemicolon:
+                self.sc.print_error("Ожидалось ;", lexeme)
+        else:
+            while type_lexeme != TSemicolon:
+                lexeme, type_lexeme = self.sc.scan()
 
     def priority_level_1(self):
         type1, val1 = self.priority_level_2()
@@ -218,13 +237,13 @@ class TDiagram:
             type2, val2 = self.priority_level_2()
             type1 = self.tree.check_data_types(type1, type2)
             if type_lexeme == TMore:
-                val1 = True if val1 > val2 else False
+                val1 = 1 if val1 > val2 else 0
             elif type_lexeme == TLess:
-                val1 = True if val1 < val2 else False
+                val1 = 1 if val1 < val2 else 0
             elif type_lexeme == TMoreEqual:
-                val1 = True if val1 >= val2 else False
+                val1 = 1 if val1 >= val2 else 0
             elif type_lexeme == TLess:
-                val1 = True if val1 <= val2 else False
+                val1 = 1 if val1 <= val2 else 0
             uk = self.sc.get_uk()
             lexeme, type_lexeme = self.sc.scan()
         self.sc.put_uk(uk)
@@ -319,6 +338,8 @@ class TDiagram:
 
     # Условный оператор
     def if_operator(self):
+        global flag_interpretation
+        local_flag_interpretation = flag_interpretation
         lexeme, type_lexeme = self.sc.scan()
         if type_lexeme != TIf:
             self.sc.print_error("Ожидался if", lexeme)
@@ -327,23 +348,33 @@ class TDiagram:
             self.sc.print_error("Ожидался (", lexeme)
         type1, val1 = self.priority_level_1()
         self.tree.check_bool(type1)
+        if int(val1) != 0 and flag_interpretation:
+            flag_interpretation = True
+        else:
+            flag_interpretation = False
         lexeme, type_lexeme = self.sc.scan()
         if type_lexeme != TRBracket:
             self.sc.print_error("Ожидался )", lexeme)
         self.operator()
+        flag_interpretation = not flag_interpretation
         uk = self.sc.get_uk()
         lexeme, type_lexeme = self.sc.scan()
         if type_lexeme == TElse:
-            self.operator()
+            if flag_interpretation:
+                self.operator()
+            else:
+                while type_lexeme != TSemicolon:
+                    lexeme, type_lexeme = self.sc.scan()
         else:
             self.sc.put_uk(uk)
+        flag_interpretation = local_flag_interpretation
 
 
 def __main__():
     scanner = TScanner("input.txt")
     td = TDiagram(scanner)
     td.program()
-    td.tree.print()
+    # td.tree.print()
 
 
 __main__()

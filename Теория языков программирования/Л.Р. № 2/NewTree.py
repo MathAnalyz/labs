@@ -12,6 +12,22 @@ def set_scanner(sc):
     scanner = sc
 
 
+def copy_branch(tree, parent):
+    right = None
+    left = None
+    if tree is None:
+        return None
+    if tree.left is not None:
+        left = copy_branch(tree.left, tree)
+    if tree.right is not None:
+        right = copy_branch(tree.right, tree)
+    new_data = DataInNode(tree.data.id, tree.data.type)
+    new_data.value = tree.data.value
+    new_data.id_struct = tree.data.id_struct
+    new_node = Node(parent=parent, right=right, left=left, data=new_data)
+    return new_node
+
+
 class DataInNode:
     def __init__(self, id, data_type):
         self.id = id
@@ -33,6 +49,10 @@ class Node:
 
     # ФУНКЦИИ ОБРАБОТКИ БИНАРНОГО ДЕРЕВА
     def set_value(self, value):
+        if self.data.type == DATA_TYPE.index('TYPE_SHORT_INT'):
+            value = int(value)
+        elif self.data.type == DATA_TYPE.index('TYPE_DOUBLE'):
+            value = float(value)
         self.data.value = value
 
     def get_value(self):
@@ -152,7 +172,7 @@ class Node:
 
     def get_node_struct(self, id):
         v = self.find_down(id, self.right)
-        # if v.data.data_type == DATA_TYPE.index('TYPE_STRUCT'):
+        # if v.data.type == DATA_TYPE.index('TYPE_STRUCT'):
         #    scanner.print_error('Нельзя присваивать типу данных.', self.data.id)
         if v is None:
             scanner.print_error('Такого идентификатора нет в указанной структуре', id)
@@ -163,7 +183,7 @@ class Node:
             scanner.print_error('Повторное описание идентификатора', id)
         if id == 'блок':
             b = DataInNode(id, type_id)
-            if self.current.data.data_type == DATA_TYPE.index('TYPE_MAIN'):
+            if self.current.data.type == DATA_TYPE.index('TYPE_MAIN'):
                 self.current.set_right(b)
                 self.current = self.current.right
             else:
@@ -187,7 +207,7 @@ class Node:
             self.current.set_left(b)
             self.current = self.current.left
             struct = self.semantic_get_node(id_struct)
-            self.current.right = struct.right
+            self.current.right = copy_branch(struct.right, self.current.right)
         else:
             type_id = self.get_data_type(type_id)
             b = DataInNode(id, type_id)
@@ -196,7 +216,7 @@ class Node:
         return self.current
 
     def semantic_set_type(self, node, new_type):
-        node.data.data_type = new_type
+        node.data.type = new_type
 
     def semantic_get_node(self, id):
         v = self.find_up(id, self.current)
@@ -232,6 +252,6 @@ class Node:
         return DATA_TYPE.index('TYPE_UNKNOWN')
 
     def check_bool(self, type1):
-        if type1 == DATA_TYPE.index('TYPE_SHORT_INT') or type1 == DATA_TYPE.index('DOUBLE'):
+        if type1 == DATA_TYPE.index('TYPE_SHORT_INT') or type1 == DATA_TYPE.index('TYPE_DOUBLE'):
             return True
         scanner.print_error('Приведение типа к bool невозможно', '')
