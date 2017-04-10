@@ -456,8 +456,7 @@ def ll1(sc: TScanner):
                 sc.print_error("Неверный символ", lex)
 
     # tree.print()
-    print_triads(triads)
-    return 0
+    return triads
 
 
 def print_triads(triads):
@@ -507,13 +506,44 @@ def print_triads(triads):
         i += 1
 
 
+def optimization_if(triads):
+    address_if = Stack()
+    address_else = Stack()
+    begin_triads = []
+    end_triads = []
+    for i in range(len(triads)):
+        if triads[i][0] == TIf:
+            address_if.push(i+1)
+        elif triads[i][0] == TGoto:
+            address_else.push(i+1)
+    shift = 0
+    while len(address_if):
+        while cmp_triad(triads[address_if.get_top() + shift], triads[address_else.get_top() + shift]):
+            begin_triads.append(triads[address_if.get_top() + shift])
+            shift += 1
+        addr_if = address_if.pop()
+        addr_else = address_else.pop()
+
+
+    return triads
+
+
+def cmp_triad(triad1, triad2):
+    if triad1[0] != triad2[0] or triad1[1] != triad2[1] or triad1[2] != triad2[2]:
+        return False
+    else:
+        return True
+
+
 def generate_triad(operation, operand2=None, operand1=None):
     return [operation, operand1, operand2]
 
 
 def __main__():
     sc = TScanner('test.txt')
-    ll1(sc)
+    triads = ll1(sc)
+    print_triads(triads)
+    # print_triads(optimization_if(triads))
     print('Синтаксических ошибок не обнаружено!')
 
 
