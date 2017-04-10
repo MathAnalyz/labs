@@ -1,481 +1,521 @@
 from Scanner import *
-from deff import *
+from nonterminal_for_LL1 import *
+from Tree import *
+from stack import *
+from procedures_for_sup import *
 
-m = []
-z = 0
 
-
-def epsilon():
-    m.pop()
+class Variable:
+    type_ = 0
+    value = 0
+    name = ''
+    id_struct = None
 
 
 def ll1(sc: TScanner):
-    global m
+    def epsilon():
+        magazine.pop()
+
+    magazine = Stack()
+    triads = []
+    tree = Node()
+    tree.set_current(tree)
+    set_scanner(sc)
+    v0 = 0
     fl = 1
-    m.append(TEnd)
-    m.append(neterm_Program)
+    stack_for_ifs = Stack()
+    operands = Stack()
+    operations = Stack()
+    current_variable = Variable()
+    magazine.push(TEnd)
+    magazine.push(neterm_Program)
     lex, t = sc.scan()
+
     while fl == 1:
-        if m[len(m) - 1] < MinTypeTerminal:
-            if m[len(m) - 1] == t:
+        if magazine.get_top() < MinTypeTerminal:
+            if magazine.get_top() == t:
                 if t == TEnd:
                     fl = 0
                 else:
                     lex, t = sc.scan()
-                    m.pop()
+                    magazine.pop()
             else:
                 sc.print_error("Ожидался символ", lex)
         else:
-            if m[len(m) - 1] == neterm_Program:
-                m.pop()
+            if magazine.get_top() == neterm_Program:
+                magazine.pop()
                 if t == TEnd:
                     epsilon()
                     break
                 else:
-                    m.append(neterm_Program)
-                    m.append(neterm_Description)
+                    magazine.push(neterm_Program)
+                    magazine.push(neterm_Description)
+                    current_variable.id_struct = None
 
-            elif m[len(m) - 1] == neterm_Description:
-                m.pop()
+            elif magazine.get_top() == neterm_Description:
+                magazine.pop()
                 if t == TStruct:
-                    m.append(neterm_Struct)
+                    magazine.push(neterm_Struct)
+                    current_variable.type_ = DATA_TYPE.index('TYPE_STRUCT')
+                    current_variable.is_struct = True
                 elif t == TShort:
-                    uk1 = sc.get_uk()
+                    uk = sc.get_uk()
                     lex1, t1 = sc.scan()
                     lex2, t2 = sc.scan()
-                    sc.put_uk(uk1)
+                    sc.put_uk(uk)
                     if t1 == TInt:
                         if t2 == TMain:
-                            m.append(neterm_Function)
+                            magazine.push(neterm_Main)
+                            current_variable.type_ = DATA_TYPE.index('TYPE_MAIN')
                         else:
-                            m.append(TSemicolon)
-                            m.append(neterm_ListOfVariables)
-                            m.append(neterm_Type)
+                            magazine.push(TSemicolon)
+                            magazine.push(neterm_ListOfVariables)
+                            magazine.push(neterm_Type)
+                            current_variable.type_ = DATA_TYPE.index('TYPE_SHORT_INT')
                     else:
                         sc.print_error("Ошибка, ожидался", "int")
+                    del lex1, lex2, t1, t2, uk
                 else:
-                    m.append(TSemicolon)
-                    m.append(neterm_ListOfVariables)
-                    m.append(neterm_Type)
-            elif m[len(m) - 1] == neterm_Type:
-                m.pop()
+                    magazine.push(TSemicolon)
+                    magazine.push(neterm_ListOfVariables)
+                    magazine.push(neterm_Type)
+                    if t == TDouble:
+                        current_variable.type_ = DATA_TYPE.index('TYPE_DOUBLE')
+                    else:
+                        current_variable.type_ = DATA_TYPE.index('TYPE_STRUCT')
+                        current_variable.id_struct = lex
+
+            elif magazine.get_top() == neterm_Type:
+                magazine.pop()
                 if t == TShort:
                     uk1 = sc.get_uk()
                     lex1, t1 = sc.scan()
                     sc.put_uk(uk1)
                     if t1 == TInt:
-                        m.append(TInt)
-                        m.append(TShort)
+                        magazine.push(TInt)
+                        magazine.push(TShort)
+                    del lex1, t1
                 elif t == TDouble:
-                    m.append(TDouble)
+                    magazine.push(TDouble)
                 elif t == TIdent:
-                    m.append(TIdent)
+                    magazine.push(TIdent)
                 else:
                     epsilon()
 
-            elif m[len(m) - 1] == neterm_Function:
-                m.pop()
-                m.append(neterm_Block)
-                m.append(TRBracket)
-                m.append(TLBracket)
-                m.append(TMain)
-                m.append(TInt)
-                m.append(TShort)
+            elif magazine.get_top() == neterm_Main:
+                magazine.pop()
+                magazine.push(proc_end_main)
+                magazine.push(neterm_Block)
+                magazine.push(proc_main)
+                magazine.push(TRBracket)
+                magazine.push(TLBracket)
+                magazine.push(TMain)
+                magazine.push(TInt)
+                magazine.push(TShort)
+                current_variable.name = 'блок'
+                v0 = tree.semantic_include(current_variable.name, current_variable.type_)
 
-            elif m[len(m) - 1] == neterm_ListOfVariables:
-                m.pop()
-                m.append(neterm_AdditionallyList)
-                m.append(neterm_Variable)
+            elif magazine.get_top() == proc_main:
+                magazine.pop()
+                triads.append(generate_triad(TMain, operand1=Operand('main')))
+            elif magazine.get_top() == proc_end_main:
+                magazine.pop()
+                triads.append(generate_triad(TEnd, operand1=Operand('main')))
 
-            elif m[len(m) - 1] == neterm_AdditionallyList:
+            elif magazine.get_top() == neterm_ListOfVariables:
+                magazine.pop()
+                magazine.push(neterm_AdditionallyList)
+                magazine.push(neterm_Variable)
+            elif magazine.get_top() == neterm_AdditionallyList:
                 if t == TComma:
-                    m.append(neterm_AdditionallyList)
-                    m.append(neterm_Variable)
-                    m.append(TComma)
+                    magazine.push(neterm_AdditionallyList)
+                    magazine.push(neterm_Variable)
+                    magazine.push(TComma)
                 else:
                     epsilon()
 
-            elif m[len(m) - 1] == neterm_Struct:
-                m.pop()
-                m.append(TSemicolon)
-                m.append(TRBrace)
-                m.append(neterm_DescriptionsStruct)
-                m.append(TLBrace)
-                m.append(TIdent)
-                m.append(TStruct)
-
-            elif m[len(m) - 1] == neterm_DescriptionsStruct:
+            elif magazine.get_top() == neterm_Struct:
+                magazine.pop()
+                magazine.push(TSemicolon)
+                magazine.push(TRBrace)
+                magazine.push(neterm_DescriptionsStruct)
+                magazine.push(TLBrace)
+                magazine.push(TIdent)
+                magazine.push(TStruct)
+                uk = sc.get_uk()
+                current_variable.name, t1 = sc.scan()
+                del t1
+                sc.put_uk(uk)
+                v0 = tree.semantic_include(current_variable.name,
+                                           current_variable.type_,
+                                           current_variable.id_struct)
+            elif magazine.get_top() == neterm_DescriptionsStruct:
                 if t == TShort:
                     uk1 = sc.get_uk()
                     lex1, t1 = sc.scan()
                     sc.put_uk(uk1)
                     if t1 == TInt:
-                        m.append(neterm_DescriptionsStruct)
-                        m.append(TSemicolon)
-                        m.append(neterm_ListOfVariables)
-                        m.append(neterm_Type)
+                        magazine.push(neterm_DescriptionsStruct)
+                        magazine.push(TSemicolon)
+                        magazine.push(neterm_ListOfVariables)
+                        magazine.push(neterm_Type)
+                        current_variable.type_ = DATA_TYPE.index('TYPE_SHORT_INT')
                     else:
                         sc.print_error("Ошибка, ожидался", "int")
+                    del lex1, t1
                 elif (t == TDouble) | (t == TIdent):
-                    m.append(neterm_DescriptionsStruct)
-                    m.append(TSemicolon)
-                    m.append(neterm_ListOfVariables)
-                    m.append(neterm_Type)
+                    magazine.push(neterm_DescriptionsStruct)
+                    magazine.push(TSemicolon)
+                    magazine.push(neterm_ListOfVariables)
+                    magazine.push(neterm_Type)
+                    if t == TDouble:
+                        current_variable.type_ = DATA_TYPE.index('TYPE_DOUBLE')
+                    else:
+                        current_variable.type_ = DATA_TYPE.index('TYPE_STRUCT')
+                        current_variable.id_struct = lex
                 else:
+                    tree.set_current(v0)
                     epsilon()
 
-            elif m[len(m) - 1] == neterm_Variable:
-                m.pop()
-                m.append(neterm_Initialization)
-                m.append(TIdent)
-
-            elif m[len(m) - 1] == neterm_Initialization:
+            elif magazine.get_top() == neterm_Variable:
+                magazine.pop()
+                magazine.push(neterm_Initialization)
+                magazine.push(TIdent)
+                current_variable.name = lex
+                tree.semantic_include(current_variable.name,
+                                      current_variable.type_,
+                                      current_variable.id_struct)
+                operands.push(Operand(lex))
+            elif magazine.get_top() == neterm_Initialization:
                 if t == TAssigment:
-                    m.append(neterm_V)
-                    m.append(TAssigment)
+                    magazine.pop()
+                    magazine.push(proc_initialization)
+                    magazine.push(neterm_PriorityLevel1)
+                    magazine.push(TAssigment)
+                    operations.push(TAssigment)
                 else:
                     epsilon()
+                    operands.pop()
+            elif magazine.get_top() == proc_initialization:
+                magazine.pop()
+                triads.append(generate_triad(operations.pop(), operands.pop(), operands.pop()))
 
-            elif m[len(m) - 1] == neterm_Block:
-                m.pop()
-                m.append(TRBrace)
-                m.append(neterm_Content)
-                m.append(TLBrace)
-            elif m[len(m) - 1] == neterm_DescriptionsInBlock:
-                m.pop()
+            elif magazine.get_top() == neterm_Block:
+                magazine.pop()
+                magazine.push(TRBrace)
+                magazine.push(neterm_ContentOfBlock)
+                magazine.push(TLBrace)
+            elif magazine.get_top() == neterm_DescriptionsInBlock:
+                magazine.pop()
                 if t == TStruct:
-                    m.append(neterm_Struct)
+                    magazine.push(neterm_Struct)
+                    current_variable.type_ = DATA_TYPE.index('TYPE_STRUCT')
+                    current_variable.is_struct = True
                 elif t == TShort:
                     uk1 = sc.get_uk()
                     lex1, t1 = sc.scan()
-                    lex2, t2 = sc.scan()
                     sc.put_uk(uk1)
                     if t1 == TInt:
-                        m.append(TSemicolon)
-                        m.append(neterm_ListOfVariables)
-                        m.append(neterm_Type)
+                        magazine.push(TSemicolon)
+                        magazine.push(neterm_ListOfVariables)
+                        magazine.push(neterm_Type)
+                        current_variable.type_ = DATA_TYPE.index('TYPE_SHORT_INT')
                     else:
                         sc.print_error("Ошибка, ожидался", "int")
+                    del lex1, t1
                 else:
-                    m.append(TSemicolon)
-                    m.append(neterm_ListOfVariables)
-                    m.append(neterm_Type)
-            elif m[len(m) - 1] == neterm_Content:
+                    magazine.push(TSemicolon)
+                    magazine.push(neterm_ListOfVariables)
+                    magazine.push(neterm_Type)
+                    if t == TDouble:
+                        current_variable.type_ = DATA_TYPE.index('TYPE_DOUBLE')
+                    else:
+                        current_variable.type_ = DATA_TYPE.index('TYPE_STRUCT')
+                        current_variable.id_struct = lex
+            elif magazine.get_top() == neterm_ContentOfBlock:
                 uk = sc.get_uk()
                 lex1, t1 = sc.scan()
                 sc.put_uk(uk)
-                if ((t1 == TIdent) | (t == TShort)) & (t != TLBrace):
-                    m.append(neterm_Content)
-                    m.append(neterm_DescriptionsInBlock)
-                elif (t == TLBrace) | (t1 != TIdent) & (t != TRBrace):
-                    m.append(neterm_Content)
-                    m.append(neterm_Operator)
+                if ((t1 == TIdent) or (t == TShort)) and (t != TLBrace):
+                    magazine.push(neterm_ContentOfBlock)
+                    magazine.push(neterm_DescriptionsInBlock)
+                elif (t == TLBrace) or (t1 != TIdent) and (t != TRBrace):
+                    magazine.push(neterm_ContentOfBlock)
+                    magazine.push(neterm_Operator)
                 else:
                     epsilon()
+                current_variable.id_struct = None
+                del lex1, t1
 
-            elif m[len(m) - 1] == neterm_Operator:
-                m.pop()
+            elif magazine.get_top() == neterm_Operator:
+                magazine.pop()
                 if t == TLBrace:
-                    m.append(neterm_CompositeOperator)
+                    magazine.push(neterm_CompositeOperator)
                 elif t == TSemicolon:
-                    m.append(TSemicolon)
+                    magazine.push(TSemicolon)
                 elif t == TIf:
-                    m.append(neterm_If)
+                    magazine.push(neterm_If)
                 elif t == TIdent:
-                    m.append(neterm_Assignment)
+                    magazine.push(neterm_Assignment)
                 else:
                     epsilon()
 
-            elif m[len(m) - 1] == neterm_CompositeOperator:
-                m.pop()
-                m.append(neterm_Block)
+            elif magazine.get_top() == neterm_CompositeOperator:
+                magazine.pop()
+                magazine.push(neterm_Block)
+                current_variable.name = 'блок'
+                v0 = tree.semantic_include(current_variable.name, 0)
 
-            elif m[len(m) - 1] == neterm_Assignment:
-                m.pop()
-                m.append(TSemicolon)
-                m.append(neterm_V)
-                m.append(TAssigment)
-                m.append(neterm_VarOrElStruct)
+            elif magazine.get_top() == neterm_Assignment:
+                magazine.pop()
+                magazine.push(TSemicolon)
+                magazine.push(proc_assignement)
+                magazine.push(neterm_PriorityLevel1)
+                magazine.push(TAssigment)
+                magazine.push(neterm_VariableOrElementOfStruct)
+                operations.push(TAssigment)
+            elif magazine.get_top() == proc_assignement:
+                magazine.pop()
+                triads.append(generate_triad(operations.pop(), operands.pop(), operands.pop()))
 
-            elif m[len(m) - 1] == neterm_VarOrElStruct:
-                m.pop()
-                m.append(neterm_ElementOfStruct)
-                m.append(TIdent)
-
-            elif m[len(m) - 1] == neterm_ElementOfStruct:
+            elif magazine.get_top() == neterm_VariableOrElementOfStruct:
+                magazine.pop()
+                magazine.push(neterm_ElementOfStruct)
+                magazine.push(TIdent)
+                operands.push(Operand(lex))
+            elif magazine.get_top() == neterm_ElementOfStruct:
                 if t == TDotLink:
-                    m.append(neterm_ElementOfStruct)
-                    m.append(TIdent)
-                    m.append(TDotLink)
+                    magazine.push(neterm_ElementOfStruct)
+                    magazine.push(TIdent)
+                    magazine.push(TDotLink)
                 else:
                     epsilon()
 
-            elif m[len(m) - 1] == neterm_If:
-                m.pop()
-                m.append(neterm_Else)
-                m.append(neterm_Operator)
-                m.append(TRBracket)
-                m.append(neterm_V)
-                m.append(TLBracket)
-                m.append(TIf)
-
-            elif m[len(m) - 1] == neterm_Else:
-                m.pop()
+            elif magazine.get_top() == neterm_If:
+                magazine.pop()
+                magazine.push(neterm_Else)
+                magazine.push(proc_goto)
+                magazine.push(neterm_Operator)
+                magazine.push(proc_if)
+                magazine.push(TRBracket)
+                magazine.push(neterm_PriorityLevel1)
+                magazine.push(TLBracket)
+                magazine.push(TIf)
+            elif magazine.get_top() == neterm_Else:
+                magazine.pop()
                 if t == TElse:
-                    m.append(neterm_Operator)
-                    m.append(TElse)
+                    magazine.push(proc_exit_from_if)
+                    magazine.push(neterm_Operator)
+                    magazine.push(TElse)
                 else:
                     epsilon()
+                    magazine.push(proc_exit_from_if)
+            elif magazine.get_top() == proc_if:
+                magazine.pop()
+                address_if = len(triads)
+                stack_for_ifs.push(address_if)
+                del address_if
+                triads.append(generate_triad(TIf,
+                                             operand1=Operand(len(triads) + 1, is_address=True),
+                                             operand2=Operand('_')))
+            elif magazine.get_top() == proc_goto:
+                magazine.pop()
+                triads[stack_for_ifs.pop()][2] = Operand(len(triads) + 1, is_address=True)
+                address_goto = len(triads)
+                stack_for_ifs.push(address_goto)
+                del address_goto
+                triads.append(generate_triad(TGoto, operand1=Operand('_')))
+            elif magazine.get_top() == proc_exit_from_if:
+                magazine.pop()
+                triads[stack_for_ifs.pop()][1] = Operand(len(triads), is_address=True)
+                triads.append(generate_triad(TNope))
 
-            elif m[len(m) - 1] == neterm_V:
-                m.pop()
-                m.append(neterm_V1)
-                m.append(neterm_W)
+            elif magazine.get_top() == proc_generate_triad_for_operation:
+                magazine.pop()
+                triads.append(generate_triad(operations.pop(), operands.pop(), operands.pop()))
+                operands.push(Operand(len(triads) - 1, is_address=True))
 
-            elif m[len(m) - 1] == neterm_V1:
+            elif magazine.get_top() == neterm_PriorityLevel1:
+                magazine.pop()
+                magazine.push(neterm_PL1)
+                magazine.push(neterm_PriorityLevel2)
+            elif magazine.get_top() == neterm_PL1:
                 if t == TMore:
-                    m.append(neterm_V1)
-                    m.append(neterm_W)
-                    m.append(TMore)
+                    magazine.push(neterm_PL1)
+                    magazine.push(proc_generate_triad_for_operation)
+                    magazine.push(neterm_PriorityLevel2)
+                    magazine.push(TMore)
+                    operations.push(TMore)
                 elif t == TLess:
-                    m.append(neterm_V1)
-                    m.append(neterm_W)
-                    m.append(TLess)
+                    magazine.push(neterm_PL1)
+                    magazine.push(proc_generate_triad_for_operation)
+                    magazine.push(neterm_PriorityLevel2)
+                    magazine.push(TLess)
+                    operations.push(TLess)
                 elif t == TMoreEqual:
-                    m.append(neterm_V1)
-                    m.append(neterm_W)
-                    m.append(TMoreEqual)
+                    magazine.push(neterm_PL1)
+                    magazine.push(proc_generate_triad_for_operation)
+                    magazine.push(neterm_PriorityLevel2)
+                    magazine.push(TMoreEqual)
+                    operations.push(TMoreEqual)
                 elif t == TLessEqual:
-                    m.append(neterm_V1)
-                    m.append(neterm_W)
-                    m.append(TLessEqual)
+                    magazine.push(neterm_PL1)
+                    magazine.push(proc_generate_triad_for_operation)
+                    magazine.push(neterm_PriorityLevel2)
+                    magazine.push(TLessEqual)
+                    operations.push(TLessEqual)
                 else:
                     epsilon()
 
-            elif m[len(m) - 1] == neterm_W:
-                m.pop()
-                m.append(neterm_W1)
-                m.append(neterm_X)
-
-            elif m[len(m) - 1] == neterm_W1:
+            elif magazine.get_top() == neterm_PriorityLevel2:
+                magazine.pop()
+                magazine.push(neterm_PL2)
+                magazine.push(neterm_PriorityLevel3)
+            elif magazine.get_top() == neterm_PL2:
                 if t == TRShift:
-                    m.append(neterm_W1)
-                    m.append(neterm_X)
-                    m.append(TRShift)
+                    magazine.push(neterm_PL2)
+                    magazine.push(proc_generate_triad_for_operation)
+                    magazine.push(neterm_PriorityLevel3)
+                    magazine.push(TRShift)
+                    operations.push(TRShift)
                 elif t == TLShift:
-                    m.append(neterm_W1)
-                    m.append(neterm_X)
-                    m.append(TLShift)
+                    magazine.push(neterm_PL2)
+                    magazine.push(proc_generate_triad_for_operation)
+                    magazine.push(neterm_PriorityLevel3)
+                    magazine.push(TLShift)
+                    operations.push(TLShift)
                 else:
                     epsilon()
 
-            elif m[len(m) - 1] == neterm_X:
-                m.pop()
-                m.append(neterm_X1)
-                m.append(neterm_Y)
-
-            elif m[len(m) - 1] == neterm_X1:
+            elif magazine.get_top() == neterm_PriorityLevel3:
+                magazine.pop()
+                magazine.push(neterm_PL3)
+                magazine.push(neterm_PriotityLevel4)
+            elif magazine.get_top() == neterm_PL3:
                 if t == TPlus:
-                    m.append(neterm_X1)
-                    m.append(neterm_Y)
-                    m.append(TPlus)
+                    magazine.push(neterm_PL3)
+                    magazine.push(proc_generate_triad_for_operation)
+                    magazine.push(neterm_PriotityLevel4)
+                    magazine.push(TPlus)
+                    operations.push(TPlus)
                 elif t == TMinus:
-                    m.append(neterm_X1)
-                    m.append(neterm_Y)
-                    m.append(TMinus)
+                    magazine.push(neterm_PL3)
+                    magazine.push(proc_generate_triad_for_operation)
+                    magazine.push(neterm_PriotityLevel4)
+                    magazine.push(TMinus)
+                    operations.push(TMinus)
                 else:
                     epsilon()
 
-            elif m[len(m) - 1] == neterm_Y:
-                m.pop()
-                m.append(neterm_Y1)
-                m.append(neterm_Z)
-
-            elif m[len(m) - 1] == neterm_Y1:
+            elif magazine.get_top() == neterm_PriotityLevel4:
+                magazine.pop()
+                magazine.push(neterm_PL4)
+                magazine.push(neterm_ElementaryExpression)
+            elif magazine.get_top() == neterm_PL4:
                 if t == TMul:
-                    m.append(neterm_Y1)
-                    m.append(neterm_Z)
-                    m.append(TMul)
+                    magazine.push(neterm_PL4)
+                    magazine.push(proc_generate_triad_for_operation)
+                    magazine.push(neterm_ElementaryExpression)
+                    magazine.push(TMul)
+                    operations.push(TMul)
                 elif t == TMod:
-                    m.append(neterm_Y1)
-                    m.append(neterm_Z)
-                    m.append(TMod)
+                    magazine.push(neterm_PL4)
+                    magazine.push(proc_generate_triad_for_operation)
+                    magazine.push(neterm_ElementaryExpression)
+                    magazine.push(TMod)
+                    operations.push(TMod)
                 elif t == TDiv:
-                    m.append(neterm_Y1)
-                    m.append(neterm_Z)
-                    m.append(TDiv)
+                    magazine.push(neterm_PL4)
+                    magazine.push(proc_generate_triad_for_operation)
+                    magazine.push(neterm_ElementaryExpression)
+                    magazine.push(TDiv)
+                    operations.push(TDiv)
                 else:
                     epsilon()
 
-            elif m[len(m) - 1] == neterm_Z:
-                m.pop()
+            elif magazine.get_top() == neterm_ElementaryExpression:
+                magazine.pop()
                 if t == TIdent:
-                    m.append(neterm_VarOrElStruct)
+                    magazine.push(neterm_VariableOrElementOfStruct)
                 elif t == TLBracket:
-                    m.append(TRBracket)
-                    m.append(neterm_V)
-                    m.append(TLBracket)
+                    magazine.push(TRBracket)
+                    magazine.push(neterm_PriorityLevel1)
+                    magazine.push(TLBracket)
                 else:
-                    m.append(neterm_Const)
-            elif m[len(m) - 1] == neterm_Const:
-                m.pop()
+                    magazine.push(neterm_Const)
+
+            elif magazine.get_top() == neterm_Const:
+                magazine.pop()
                 if (t == TConstInt10) | (t == TConstDoubleExp):
-                    m.append(t)
-                else:
-                    sc.print_error("Неверный символ", lex)
+                    magazine.push(t)
+                    if t == TConstInt10:
+                        operands.push(Operand(int(lex)))
+                    else:
+                        operands.push(Operand(float(lex)))
+            else:
+                sc.print_error("Неверный символ", lex)
+
+    # tree.print()
+    print_triads(triads)
     return 0
 
 
+def print_triads(triads):
+    znak = ''
+    i = 0
+    for triad in triads:
+        if triad[0] == TAssigment:
+            znak = '='
+        elif triad[0] == TPlus:
+            znak = '+'
+        elif triad[0] == TMinus:
+            znak = '-'
+        elif triad[0] == TDiv:
+            znak = '/'
+        elif triad[0] == TMod:
+            znak = '%'
+        elif triad[0] == TMul:
+            znak = '*'
+        elif triad[0] == TRShift:
+            znak = '>>'
+        elif triad[0] == TLShift:
+            znak = '<<'
+        elif triad[0] == TMore:
+            znak = '>'
+        elif triad[0] == TLess:
+            znak = '<'
+        elif triad[0] == TMoreEqual:
+            znak = '>='
+        elif triad[0] == TLessEqual:
+            znak = '<='
+        elif triad[0] == TMain:
+            znak = 'proc'
+        elif triad[0] == TEnd:
+            znak = 'endproc'
+        elif triad[0] == TIf:
+            znak = 'if'
+        elif triad[0] == TGoto:
+            znak = 'goto'
+        elif triad[0] == TNope:
+            znak = 'nope'
+        if triad[1] is None:
+            print(str(i) + ')', znak)
+        elif triad[2] is None:
+            print(str(i) + ')', znak, triad[1].value)
+        else:
+            print(str(i) + ')', znak, triad[1].value, triad[2].value)
+        i += 1
+
+
+def generate_triad(operation, operand2=None, operand1=None):
+    return [operation, operand1, operand2]
+
+
 def __main__():
-    sc = TScanner('input.txt')
+    sc = TScanner('test.txt')
     ll1(sc)
     print('Синтаксических ошибок не обнаружено!')
 
 
-__main__()
-
-'''elif m[z] == neterm_Type:
-                if t == TInt:
-                    m[z] = TInt
-                    z += 1
-                elif t == TDouble:
-                    m[z] = TDouble
-                    z += 1
-                elif t == TIdent:
-                    m[z] = TIdent
-                    z += 1
-                else:
-                    epsilon()
-                
-            elif m[z] == neterm_ListOfVariables:
-                m[z] = neterm_ListOfVariables2
-                z += 1
-                m[z] = neterm_Variable
-                z += 1
-                
-            elif m[z] == neterm_ListOfVariables2:
-                if t == TComma:
-                    m[z] = neterm_AListOfVariablesInTheStructure2
-                    z += 1
-                    m[z] = neterm_Variable
-                    z += 1
-                    m[z] = TComma
-                    z += 1
-                else:
-                    epsilon()
-                
-            elif m[z] == neterm_Variable:
-                m[z] = neterm_Initialization
-                z += 1
-                m[z] = TIdent
-                z += 1
-                
-            elif m[z] == neterm_Initialization:
-                if t == TAssigment:
-                    m[z] = neterm_Expression
-                    z += 1
-                    m[z] = TAssigment
-                    z += 1
-                else:
-                    epsilon()
-                
-            elif m[z] == neterm_Block:
-                if t == TLBracket:
-                    m[z] = TRBracket
-                    z += 1
-                    m[z] = neterm_OperatorSAndDescriptions
-                    z += 1
-                    m[z] = TLBracket
-                    z += 1
-                else:
-                    sc.print_error("Ожидался символ", lex)
-                
-            elif m[z] == neterm_OperatorSAndDescriptions:
-                if (t == TInt) | (t == TDouble):
-                    m[z] = neterm_OperatorSAndDescriptions
-                    z += 1
-                    m[z] = neterm_Data
-                    z += 1
-                elif (t == TLBracket) | (t == TSemicolon) | (t == TIf):
-                    m[z] = neterm_OperatorSAndDescriptions
-                    z += 1
-                    m[z] = neterm_Operator
-                    z += 1
-                elif t == TIdent:
-                    m[z] = neterm_OperatorSAndDescriptions
-                    z += 1
-                    uk1 = sc.get_uk()
-                    lex1, ttt = sc.scaner()
-                    sc.put_uk(uk1)
-                    if ttt == TIdent:
-                        m[z] = neterm_Data
-                        z += 1
-                    else:
-                        m[z] = neterm_Operator
-                        z += 1
-                else:
-                    epsilon()
-                
-            elif m[z] == neterm_Operator:
-                if t == TIdent:
-                    m[z] = TSemicolon
-                    z += 1
-                    m[z] = neterm_Assignment
-                    z += 1
-                elif t == TIf:
-                    m[z] = neterm_While
-                    z += 1
-                elif t == TLBracket:
-                    m[z] = neterm_Block
-                    z += 1
-                elif t == TSemicolon:
-                    m[z] = TSemicolon
-                    z += 1
-                else:
-                    sc.print_error("Неверный символ", lex)
-                
-            elif m[z] == neterm_Assignment:
-                m[z] = neterm_Expression
-                z += 1
-                m[z] = TAssigment
-                z += 1
-                m[z] = neterm_Name
-                z += 1
-                
-            elif m[z] == neterm_Name:
-                m[z] = neterm_Name1
-                z += 1
-                m[z] = TIdent
-                z += 1
-                
-            elif m[z] == neterm_Name1:
-                if t == TDotLink:
-                    m[z] = neterm_Name1
-                    z += 1
-                    m[z] = TIdent
-                    z += 1
-                    m[z] = TDotLink
-                    z += 1
-                else:
-                    epsilon()
-                
-            elif m[z] == neterm_While:
-                m[z] = neterm_Operator
-                z += 1
-                m[z] = TRBracket
-                z += 1
-                m[z] = neterm_Expression
-                z += 1
-                m[z] = TLBracket
-                z += 1
-                m[z] = TIf
-                z += 1
-                
-            elif m[z] == neterm_Expression:
-                m[z] = neterm_Expression1
-                z += 1
-                m[z] = neterm_V
-                z += 1
-                
-            '''
-#
+if __name__ == '__main__':
+    __main__()
