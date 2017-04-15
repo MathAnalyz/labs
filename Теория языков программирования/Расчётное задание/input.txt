@@ -1,0 +1,17 @@
+short int main(){
+    short a;
+    short int b;
+    double mul = 2.3E0 * 2.14E0;
+    if (0)
+    {
+        struct s1 { short a; };
+        s1 s;
+        {   s.a = 2; }
+    }
+    else
+    {
+        mul = 3;
+    }
+    //    mul = 3;
+    /*    mul = 3; */
+}

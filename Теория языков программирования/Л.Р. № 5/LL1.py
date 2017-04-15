@@ -2,6 +2,7 @@ from Scanner import *
 from nonterminal_for_LL1 import *
 from Tree import *
 from stack import *
+from list import List
 from procedures_for_sup import *
 
 
@@ -17,7 +18,7 @@ def ll1(sc: TScanner):
         magazine.pop()
 
     magazine = Stack()
-    triads = []
+    triads = List()
     tree = Node()
     tree.set_current(tree)
     set_scanner(sc)
@@ -312,22 +313,24 @@ def ll1(sc: TScanner):
                     magazine.push(proc_exit_from_if)
             elif magazine.get_top() == proc_if:
                 magazine.pop()
-                address_if = len(triads)
-                stack_for_ifs.push(address_if)
-                del address_if
+                if len(operands) > 0:
+                    triads.append(generate_triad(TCmp,
+                                                 operand1=operands.pop(),
+                                                 operand2=Operand(0)))
+                stack_for_ifs.push(len(triads))
                 triads.append(generate_triad(TIf,
                                              operand1=Operand(len(triads) + 1, is_address=True),
                                              operand2=Operand('_')))
             elif magazine.get_top() == proc_goto:
                 magazine.pop()
-                triads[stack_for_ifs.pop()][2] = Operand(len(triads) + 1, is_address=True)
+                triads[stack_for_ifs.pop()].value[2] = Operand(len(triads) + 1, is_address=True)
                 address_goto = len(triads)
                 stack_for_ifs.push(address_goto)
                 del address_goto
                 triads.append(generate_triad(TGoto, operand1=Operand('_')))
             elif magazine.get_top() == proc_exit_from_if:
                 magazine.pop()
-                triads[stack_for_ifs.pop()][1] = Operand(len(triads), is_address=True)
+                triads[stack_for_ifs.pop()].value[1] = Operand(len(triads), is_address=True)
                 triads.append(generate_triad(TNope))
 
             elif magazine.get_top() == proc_generate_triad_for_operation:
@@ -463,76 +466,188 @@ def print_triads(triads):
     znak = ''
     i = 0
     for triad in triads:
-        if triad[0] == TAssigment:
+        if triad.value[0] == TAssigment:
             znak = '='
-        elif triad[0] == TPlus:
+        elif triad.value[0] == TPlus:
             znak = '+'
-        elif triad[0] == TMinus:
+        elif triad.value[0] == TMinus:
             znak = '-'
-        elif triad[0] == TDiv:
+        elif triad.value[0] == TDiv:
             znak = '/'
-        elif triad[0] == TMod:
+        elif triad.value[0] == TMod:
             znak = '%'
-        elif triad[0] == TMul:
+        elif triad.value[0] == TMul:
             znak = '*'
-        elif triad[0] == TRShift:
+        elif triad.value[0] == TRShift:
             znak = '>>'
-        elif triad[0] == TLShift:
+        elif triad.value[0] == TLShift:
             znak = '<<'
-        elif triad[0] == TMore:
+        elif triad.value[0] == TMore:
             znak = '>'
-        elif triad[0] == TLess:
+        elif triad.value[0] == TLess:
             znak = '<'
-        elif triad[0] == TMoreEqual:
+        elif triad.value[0] == TMoreEqual:
             znak = '>='
-        elif triad[0] == TLessEqual:
+        elif triad.value[0] == TLessEqual:
             znak = '<='
-        elif triad[0] == TMain:
+        elif triad.value[0] == TMain:
             znak = 'proc'
-        elif triad[0] == TEnd:
+        elif triad.value[0] == TEnd:
             znak = 'endproc'
-        elif triad[0] == TIf:
+        elif triad.value[0] == TIf:
             znak = 'if'
-        elif triad[0] == TGoto:
+        elif triad.value[0] == TGoto:
             znak = 'goto'
-        elif triad[0] == TNope:
+        elif triad.value[0] == TNope:
             znak = 'nope'
-        if triad[1] is None:
-            print(str(i) + ')', znak)
-        elif triad[2] is None:
-            print(str(i) + ')', znak, triad[1].value)
+        elif triad.value[0] == TCmp:
+            znak = 'cmp'
+        if triad.value[1] is None:
+            print(str(triad.number) + ')', znak)
+        elif triad.value[2] is None:
+            print(str(triad.number) + ')',
+                  znak,
+                  triad.value[1].value if not triad.value[1].is_address else '(' + str(triad.value[1].value) + ')')
         else:
-            print(str(i) + ')', znak, triad[1].value, triad[2].value)
-        i += 1
+            print(str(triad.number) + ')',
+                  znak,
+                  triad.value[1].value if not triad.value[1].is_address else '(' + str(triad.value[1].value) + ')',
+                  triad.value[2].value if not triad.value[2].is_address else '(' + str(triad.value[2].value) + ')')
 
 
 def optimization_if(triads):
-    address_if = Stack()
-    address_else = Stack()
-    begin_triads = []
-    end_triads = []
-    for i in range(len(triads)):
-        if triads[i][0] == TIf:
-            address_if.push(i+1)
-        elif triads[i][0] == TGoto:
-            address_else.push(i+1)
-    shift = 0
-    while len(address_if):
-        while cmp_triad(triads[address_if.get_top() + shift], triads[address_else.get_top() + shift]):
-            begin_triads.append(triads[address_if.get_top() + shift])
+    number_if = 0
+    for triad in triads:
+        if triad.value[0] == TIf:
+            number_if += 1
+    while number_if > 0:
+        begin_triads = []
+        level = 0
+        begin_if = 0
+        begin_else = 0
+        shift = 0
+        for i in range(len(triads)):
+            if triads[i].value[0] == TIf and not triads[i].is_optimised:
+                if level == 0:
+                    begin_if = i + 1
+                level += 1
+            if triads[i].value[0] == TGoto:
+                if level > 0:
+                    level -= 1
+                    if level == 0:
+                        begin_else = i + 1
+                        break
+                else:
+                    continue
+        while cmp_triad(triads, triads[begin_if + shift].value,
+                        triads[begin_else + shift].value):
+            begin_triads.append(triads[begin_if + shift])
             shift += 1
-        addr_if = address_if.pop()
-        addr_else = address_else.pop()
+        triads[begin_if - 1].is_optimised = True
+        if shift != 0:
+            # Обновим адреса перходов для оптимизируемого if-a
+            triads[begin_if - 1].value[1].value = triads[begin_if + shift].number
+            triads[begin_if - 1].value[2].value = triads[begin_else + shift].number
+            # Удаляем совпадающие строки
+            for i in range(shift):
+                triads.pop(begin_else)
+                triads.pop(begin_if)
+                begin_else -= 1
 
+            # Создаём триаду для запоминания результата сравнения
+            triads.insert(begin_if - 1, generate_triad(TAssigment,
+                                                       operand2=Operand(begin_if - 2, is_address=True),
+                                                       operand1=Operand('TMP' + str(begin_if - 1))))
+            # Записываем совпадаюшие строки после запоминания результата
+            for i in range(shift):
+                triads.insert(begin_if + i, begin_triads[i].value, begin_triads[i].number)
+            # Восстанавливаем значение результата сравнения в регистре
+            triads.insert(begin_if + shift, generate_triad(TCmp,
+                                                           operand1=triads[begin_if - 1].value[1],
+                                                           operand2=Operand(0)))
+        # print('------------------------')
+        # print_triads(triads)
+        end_if = triads.index(triads.get_item(triads[begin_if + shift + 1].value[2].value)) - 2
+        end_else = triads.index(triads.get_item(triads[end_if + 1].value[1].value)) - 1
+        while True:
+            if triads[end_if].value[0] == TAssigment and \
+                            triads[end_else].value[0] == TAssigment:
+                if cmp_triad(triads, triads[end_if].value, triads[end_else].value):
+                    triads_of_assignement = get_assignement(triads, [], triads[end_if].number)
+                    triads_of_assignement.sort(key=lambda triad1: triad1.number)
+                    triads = delete_assignement(triads, triads[end_else].number)
+                    triads = delete_assignement(triads, triads[end_if].number)
+                    end_if -= len(triads_of_assignement)
+                    end_else -= 2 * len(triads_of_assignement)
+                    # print('------------------------')
+                    # print_triads(triads)
+                    for i in range(len(triads_of_assignement)):
+                        triads.insert(end_else + 2 + i, triads_of_assignement[i].value, triads_of_assignement[i].number)
+                else:
+                    break
+            else:
+                break
 
+        number_if = 0
+        for triad in triads:
+            if triad.value[0] == TIf and not triad.is_optimised:
+                number_if += 1
     return triads
 
 
-def cmp_triad(triad1, triad2):
-    if triad1[0] != triad2[0] or triad1[1] != triad2[1] or triad1[2] != triad2[2]:
+def delete_assignement(triads: List, number):
+    if triads.get_item(number).value[1].is_address:
+        triads = delete_assignement(triads, triads.get_item(triads.get_item(number).value[1].value).number)
+    if triads.get_item(number).value[2].is_address:
+        triads = delete_assignement(triads, triads.get_item(triads.get_item(number).value[2].value).number)
+    triads.pop(triads.index(triads.get_item(number)))
+    return triads
+
+
+def get_assignement(triads, triads_of_assignement, number):
+    triads_of_assignement.append(triads.get_item(number))
+    if triads.get_item(number).value[1].is_address:
+        triads_of_assignement = get_assignement(triads, triads_of_assignement,
+                                                    triads.get_item(triads.get_item(number).value[1].value).number)
+    if triads.get_item(number).value[2].is_address:
+        triads_of_assignement = get_assignement(triads, triads_of_assignement,
+                                                    triads.get_item(triads.get_item(number).value[2].value).number)
+    return triads_of_assignement
+
+
+def cmp_triad(triads, triad1, triad2):
+    if triad1[0] != triad2[0]:
         return False
-    else:
+    elif triad1[0] == TNope:
         return True
+    elif triad1[0] == TGoto:
+        if triad1[1].is_address and not cmp_triad(triads, triads.get_item(triad1[1].value).value,
+                                                  triads.get_item(triad2[1].value).value):
+            return False
+    elif not triad1[1].is_address and \
+            not triad1[2].is_address and \
+            not triad2[1].is_address and \
+            not triad2[2].is_address:
+        if triad1[1] != triad2[1] or triad1[2] != triad2[2]:
+            return False
+    else:
+        if triad1[1].is_address and not triad2[1].is_address or \
+                        triad1[2].is_address and not triad2[2].is_address or \
+                        triad2[1].is_address and not triad1[1].is_address or \
+                        triad2[2].is_address and not triad1[2].is_address:
+            return False
+        else:
+            if triad1[1].is_address and not cmp_triad(triads, triads.get_item(triad1[1].value).value,
+                                                      triads.get_item(triad2[1].value).value):
+                return False
+            elif not triad1[1].is_address and triad1[1].value != triad2[1].value:
+                return False
+            if triad1[2].is_address and not cmp_triad(triads, triads.get_item(triad1[2].value).value,
+                                                      triads.get_item(triad2[2].value).value):
+                return False
+            elif not triad1[2].is_address and triad1[2].value != triad2[2].value:
+                return False
+    return True
 
 
 def generate_triad(operation, operand2=None, operand1=None):
@@ -542,8 +657,8 @@ def generate_triad(operation, operand2=None, operand1=None):
 def __main__():
     sc = TScanner('test.txt')
     triads = ll1(sc)
-    print_triads(triads)
-    # print_triads(optimization_if(triads))
+    # print_triads(triads)
+    print_triads(optimization_if(triads))
     print('Синтаксических ошибок не обнаружено!')
 
 

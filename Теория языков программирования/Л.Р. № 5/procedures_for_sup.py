@@ -1,3 +1,4 @@
+TCmp = 1997
 TNope = 1998
 TGoto = 1999
 
