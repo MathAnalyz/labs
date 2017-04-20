@@ -1,0 +1,13 @@
+short int a = 100;
+
+short int toInt = 21.1E0 + 10;
+
+short int div = 21.1E0 / 10 + 10;
+
+double mul = 21.1E0 / (10 + 10);
+
+double modInt = 21 % (10 + 10);
+
+double modDouble = 21.1E0 % (10 + 10);
+
+//

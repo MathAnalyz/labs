@@ -1,0 +1,8 @@
+struct s1{short int a,b;};
+s1 x1;
+struct s2{s1 c;short int a;s1 b;};
+s2 x2;
+short int main(){short int x,y;
+   {double s2; s2 x; short int z1,z2;};
+}
+dsad
