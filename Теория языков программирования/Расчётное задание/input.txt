@@ -1,16 +1,15 @@
+short int b;
+double asdfdf1 = 4.5E02 + 1 * 2 / 3 - b;
+struct dd { double b;};
+dd s1;
 short int main(){
-    short a;
-    short int b;
-    double mul = 2.3E0 * 2.14E0;
     if (0)
     {
-        struct s1 { short a; };
-        s1 s;
-        {   s.a = 2; }
+        s1.b = 12;
     }
     else
     {
-        mul = 3;
+        double mul = 3;
     }
     //    mul = 3;
     /*    mul = 3; */

@@ -176,7 +176,7 @@ class TScanner:
                 lexeme += self.text[self.position]
                 i += 1
                 self.position += 1
-                return lexeme, TAssigment
+                return lexeme, TAssignment
             elif self.text[self.position] == '>':
                 lexeme += self.text[self.position]
                 i += 1

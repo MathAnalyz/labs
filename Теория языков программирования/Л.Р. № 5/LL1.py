@@ -188,12 +188,12 @@ def ll1(sc: TScanner):
                                       current_variable.id_struct)
                 operands.push(Operand(lex))
             elif magazine.get_top() == neterm_Initialization:
-                if t == TAssigment:
+                if t == TAssignment:
                     magazine.pop()
                     magazine.push(proc_initialization)
                     magazine.push(neterm_PriorityLevel1)
-                    magazine.push(TAssigment)
-                    operations.push(TAssigment)
+                    magazine.push(TAssignment)
+                    operations.push(TAssignment)
                 else:
                     epsilon()
                     operands.pop()
@@ -272,9 +272,9 @@ def ll1(sc: TScanner):
                 magazine.push(TSemicolon)
                 magazine.push(proc_assignement)
                 magazine.push(neterm_PriorityLevel1)
-                magazine.push(TAssigment)
+                magazine.push(TAssignment)
                 magazine.push(neterm_VariableOrElementOfStruct)
-                operations.push(TAssigment)
+                operations.push(TAssignment)
             elif magazine.get_top() == proc_assignement:
                 magazine.pop()
                 triads.append(generate_triad(operations.pop(), operands.pop(), operands.pop()))
@@ -459,14 +459,14 @@ def ll1(sc: TScanner):
                 sc.print_error("Неверный символ", lex)
 
     # tree.print()
-    return triads
+    return triads, tree
 
 
 def print_triads(triads):
     znak = ''
     i = 0
     for triad in triads:
-        if triad.value[0] == TAssigment:
+        if triad.value[0] == TAssignment:
             znak = '='
         elif triad.value[0] == TPlus:
             znak = '+'
@@ -555,7 +555,7 @@ def optimization_if(triads):
                 begin_else -= 1
 
             # Создаём триаду для запоминания результата сравнения
-            triads.insert(begin_if - 1, generate_triad(TAssigment,
+            triads.insert(begin_if - 1, generate_triad(TAssignment,
                                                        operand2=Operand(begin_if - 2, is_address=True),
                                                        operand1=Operand('TMP' + str(begin_if - 1))))
             # Записываем совпадаюшие строки после запоминания результата
@@ -570,8 +570,8 @@ def optimization_if(triads):
         end_if = triads.index(triads.get_item(triads[begin_if + shift + 1].value[2].value)) - 2
         end_else = triads.index(triads.get_item(triads[end_if + 1].value[1].value)) - 1
         while True:
-            if triads[end_if].value[0] == TAssigment and \
-                            triads[end_else].value[0] == TAssigment:
+            if triads[end_if].value[0] == TAssignment and \
+                            triads[end_else].value[0] == TAssignment:
                 if cmp_triad(triads, triads[end_if].value, triads[end_else].value):
                     triads_of_assignement = get_assignement(triads, [], triads[end_if].number)
                     triads_of_assignement.sort(key=lambda triad1: triad1.number)
@@ -593,7 +593,6 @@ def optimization_if(triads):
             if triad.value[0] == TIf and not triad.is_optimised:
                 number_if += 1
     return triads
-
 
 def delete_assignement(triads: List, number):
     if triads.get_item(number).value[1].is_address:
@@ -656,7 +655,7 @@ def generate_triad(operation, operand2=None, operand1=None):
 
 def __main__():
     sc = TScanner('test.txt')
-    triads = ll1(sc)
+    triads, tree = ll1(sc)
     # print_triads(triads)
     print_triads(optimization_if(triads))
     print('Синтаксических ошибок не обнаружено!')

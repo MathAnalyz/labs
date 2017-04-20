@@ -5,11 +5,14 @@ run_program
     ;
 
 program
-    :   (data
-    |   main);
+    :
+    (   main
+    |   data
+    |   struct)*
+    ;
 
 data
-    :   (typeData Identifier init ','?)* ';'
+    :  typeData Identifier init (',' Identifier init)* ';'
     ;
 
 typeData
@@ -27,7 +30,7 @@ main
     ;
 
 block
-    :   '{' blockContent '}'
+    :   '{' blockContent* '}'
     ;
 
 blockContent
@@ -57,11 +60,11 @@ condition
     ;
 
 struct
-    :   'struct' Identifier '{' dataStruct '}' ';'
+    :   'struct' Identifier '{' dataStruct* '}' ';'
     ;
 
 dataStruct
-    : typeData Identifier+ ';'
+    : typeData Identifier (',' Identifier)* ';'
     ;
 
 conditionalOperates

@@ -32,7 +32,7 @@ TLBracket = 24
 TRBracket = 25
 TLBrace = 26
 TRBrace = 27
-TAssigment = 28
+TAssignment = 28
 TComma = 29
 # Ошибочный символ
 TErr = 30

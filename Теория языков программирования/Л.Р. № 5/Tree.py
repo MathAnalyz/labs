@@ -29,11 +29,16 @@ def copy_branch(tree, parent):
 
 
 class DataInNode:
-    def __init__(self, id, data_type):
+    def __init__(self, id, data_type, shift=False):
         self.id = id
         self.type = data_type
         self.id_struct = ''
         self.value = None
+        self.shift = shift
+        self.glob = True
+
+
+main = False
 
 
 class Node:
@@ -178,11 +183,19 @@ class Node:
             scanner.print_error('Такого идентификатора нет в указанной структуре', id)
         return v
 
+    def get_shift(self, shift):
+        if self.parent is None or self.data.type == DATA_TYPE.index('TYPE_MAIN'):
+            return shift
+        if self.data.type == DATA_TYPE.index('TYPE_SHORT_INT'):
+            return self.parent.get_shift(shift + 4)
+
     def semantic_include(self, id, type_id, id_struct=None):
         if self.duplicate_control(id, self.current):
             scanner.print_error('Повторное описание идентификатора', id)
-        b = DataInNode(id, type_id)
+        b = DataInNode(id, type_id, shift=int(self.current.get_shift(0) + 4))
         if id == 'блок':
+            global main
+            main = True
             if self.current.data.type == DATA_TYPE.index('TYPE_MAIN'):
                 self.current.set_right(b)
                 self.current = self.current.right
@@ -208,6 +221,8 @@ class Node:
             return v
         else:
             # type_id = self.get_data_type(type_id)
+            if main:
+                b.glob = False
             self.current.set_left(b)
             self.current = self.current.left
         return self.current
@@ -252,3 +267,15 @@ class Node:
         if type1 == DATA_TYPE.index('TYPE_SHORT_INT') or type1 == DATA_TYPE.index('TYPE_DOUBLE'):
             return True
         scanner.print_error('Приведение типа к bool невозможно', '')
+
+    def get_size_int(self, size):
+        right = 0
+        left = 0
+        cur_size = 0
+        if self.data.type == DATA_TYPE.index('TYPE_SHORT_INT'):
+            cur_size = 4
+        if self.right is not None:
+            right = self.right.get_size_int(size)
+        if self.left is not None:
+            left = self.left.get_size_int(size)
+        return right + left + cur_size

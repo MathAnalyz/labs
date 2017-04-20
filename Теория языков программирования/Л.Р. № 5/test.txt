@@ -1,16 +1,8 @@
+//short int a = (1/2/(3/4/(5/6/(7/8/(9/10/(11/12/(13/14/(15/16))))))));;
+short int b = 2;
+short int a = ((1 / 2) / 3) / ((4 / 5) / (6  / 7)) / (8 / 9) / b;
 short int main()
 {
-    double mul = 2.3E0 * 2.14E0;
-    if (0)
-    {
-        mul = 2 * 3 + 2 * 3;
-        mul = 1;
-        mul = 2 * 3 + 2 * 3;
-    }
-    else
-    {
-        mul = 2 * 3 + 2 * 3;
-        mul = 3;
-        mul = 2 * 3 + 2 * 3;
-    }
+    short int c = 2, d = 4;
+    short int mul = (1/ b / (a/d))/c;
 }
