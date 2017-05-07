@@ -37,7 +37,7 @@ def get_register(prev=False):
     else:
         for i in range(len(registers)):
             if registers[i].name == prev:
-                r = registers[i-1]
+                r = registers[i - 1]
     return r
 
 
@@ -64,6 +64,13 @@ def generate_asm_code(triads: List, tree: Node):
     main = False
     reg1 = 0
     reg2 = 0
+    cur = tree
+    while cur is not None:
+        if cur.data.id == 'блок':
+            break
+        if cur.data.type == DATA_TYPE.index('TYPE_SHORT_INT'):
+            print('my_main' + cur.data.id + ':', cur.data.id)
+        cur = cur.left
     for triad in triads:
         if triad.value[0] == TDiv:
             if main:

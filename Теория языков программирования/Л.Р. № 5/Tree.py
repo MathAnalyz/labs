@@ -104,6 +104,14 @@ class Node:
             i = i.left
         return i
 
+    def print_segment_data(self, node):
+        i = node
+        while i is not None:
+            if id == 'блок':
+                break
+            i = i.left
+        return i
+
     def find_right_left(self, id, from_node=None):
         """
         Ищет вершину по id описанную на вложенном уровне, относительно текущей,
